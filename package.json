@@ -1,0 +1,41 @@
+{
+  "name": "rodeo-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "work": "psql rodeo -c 'truncate tasks_schedules;'; node support/worker.js",
+    "prod": "env RODEO_RPC_URL=https://arb1.arbitrum.io/rpc RODEO_CHAIN=42161 INVESTOR_ADDRESS=0x8accf43Dd31DfCd4919cc7d65912A475BfA60369 INVESTOR_HELPER_ADDRESS=0x6f456005A7CfBF0228Ca98358f60E6AE1d347E18 STRATEGY_HELPER_ADDRESS=0xC7893Bd5d7bC46182070533c862ecF40dF59EF1B next dev",
+    "db": "psql -c 'drop database rodeo;'; psql -c 'create database rodeo;'; psql rodeo <./support/db.sql"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": false
+  },
+  "eslintConfig": {
+    "rules": {
+      "jsx-a11y/alt-text": 0
+    }
+  },
+  "dependencies": {
+    "@rainbow-me/rainbowkit": "0.5.0",
+    "ethers": "5.7.2",
+    "next": "12.2.2",
+    "pg": "8.8.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-toastify": "^9.1.1",
+    "recharts": "^2.1.16",
+    "wagmi": "0.6.4"
+  },
+  "devDependencies": {
+    "eslint": "8.20.0",
+    "eslint-config-next": "12.2.2",
+    "sass": "^1.54.0"
+  }
+}

@@ -1,0 +1,184 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
+
+import {DSTest} from "../test/utils/DSTest.sol";
+import {IERC20} from "../interfaces/IERC20.sol";
+import {Investor} from "../Investor.sol";
+import {InvestorHelper} from "../InvestorHelper.sol";
+import {Pool} from "../Pool.sol";
+import {Strategy} from "../Strategy.sol";
+import {Multisig} from "../support/Multisig.sol";
+import {StrategyHelper, StrategyHelperCurve} from "../StrategyHelper.sol";
+import {PositionManager, ERC721TokenReceiver} from "../PositionManager.sol";
+import {StrategyGMXGLP} from "../StrategyGMXGLP.sol";
+import {OracleUniswapV2} from "../OracleUniswapV2.sol";
+
+import {console} from "../test/utils/console.sol";
+
+contract Debug is DSTest, ERC721TokenReceiver {
+    function run() external {
+        address usdc = 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8;
+        address weth = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
+        address poolUsdc = 0x0032F5E1520a66C6E572e96A11fBF54aea26f9bE;
+        address investorActor = 0x9D6A853Da8BF51386240Ad1ed19E13C48dF3a2A7;
+        address strategyHelper = 0x72f7101371201CeFd43Af026eEf1403652F115EE;
+        Investor investor = Investor(0x8accf43Dd31DfCd4919cc7d65912A475BfA60369);
+        Multisig multisig = Multisig(payable(0xaB7d6293CE715F12879B9fa7CBaBbFCE3BAc0A5a));
+
+        //vm.startPrank(0x59b670e9fA9D0A427751Af201D676719a970857b); // Local
+        address deployer = 0x20dE070F1887f82fcE2bdCf5D6d9874091e6FAe9;
+        vm.startPrank(deployer);
+
+        /*
+        // DEPLOY NEW STRATEGY
+        StrategyJoe s = new StrategyJoe(
+            address(strategyHelper),
+            0x7BFd7192E76D950832c77BB412aaE841049D8D9B,
+            0x7eC3717f70894F6d9BA0be00774610394Ce006eE,
+            15,
+            6
+        );
+        //vm.stopPrank();
+        //vm.startPrank(0xa5c1c5a67Ba16430547FEA9D608Ef81119bE1876);
+        //address(0x97247DE3fe7c5aA718b2be4d454E42de11eAfc6d).call(abi.encodeWithSignature("whitelistAdd(address)", address(s)));
+        //address(0x4E5Cf54FdE5E1237e80E87fcbA555d829e1307CE).call(abi.encodeWithSignature("setWhitelist(address)", 0x97247DE3fe7c5aA718b2be4d454E42de11eAfc6d));
+        //vm.stopPrank();
+        //vm.startPrank(deployer);
+        s.file("slippage", 200);
+        s.file("exec", investorActor);
+        s.file("exec", address(investor));
+        uint256 sid = investor.nextStrategy();
+        investor.setStrategy(sid, address(s));
+        IERC20(usdc).approve(address(investor), type(uint256).max);
+        investor.earn(deployer, poolUsdc, sid, 50e6, 0, "");
+        s.earn();
+        console.log("value", s.rate(s.totalShares())/1e16);
+        investor.earn(deployer, poolUsdc, sid, 10e6, 0, "");
+        console.log("value", s.rate(s.totalShares())/1e16);
+        investor.earn(deployer, poolUsdc, sid, 10e6, 0, "");
+        console.log("value", s.rate(s.totalShares())/1e16);
+        vm.warp(block.timestamp+3600);
+        s.earn();
+        investor.edit(investor.nextPosition()-2, 0-int256(s.totalShares())/2, 0, "");
+        console.log("value", s.rate(s.totalShares())/1e16);
+        //*/
+
+        /*
+        // UPDATE STRATEGY
+        StrategyGMXGLP s = new StrategyGMXGLP(
+          address(strategyHelper),
+          0xB95DB5B167D75e6d04227CfFFA61069348d271F5,
+          0xA906F338CB21815cBc4Bc87ace9e68c87eF8d8F1,
+          0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf,
+          weth, usdc
+        );
+        s.file("slippage", 100);
+        s.file("exec", investorActor);
+        s.file("exec", address(investor));
+        StrategyGMXGLP os = StrategyGMXGLP(investor.strategies(12));
+        console.log("value old", os.rate(os.totalShares()));
+        vm.stopPrank();
+        vm.startPrank(address(multisig));
+        investor.setStrategy(12, address(s));
+        console.log("value new", s.rate(s.totalShares()));
+        //*/
+        //vm.stopPrank();
+        //vm.startPrank(0x055B29979f6BC27669Ebd54182588FeF12ffBFc0);
+        //address(0x5e4d7F61cC608485A2E4F105713D26D58a9D0cF6).call(hex"d79c2f7a000000000000000000000000055b29979f6bc27669ebd54182588fef12ffbfc00000000000000000000000000032f5e1520a66c6e572e96a11fbf54aea26f9be0000000000000000000000000000000000000000000000000000000000000015000000000000000000000000000000000000000000000000000000003b9aca00000000000000000000000000000000000000000000000000000000006b49d20000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000032");
+
+        /*
+        OracleChainlinkETH owst = new OracleChainlinkETH(0xB1552C5e96B312d0Bf8b554186F846C40614a540, 0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612);
+        sh.setOracle(0x5979D7b546E38E414F7E9822514be443A4800529, address(owst));
+        StrategyHelperCurve shc = new StrategyHelperCurve(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1);
+        {
+        address[] memory pathPools = new address[](3);
+        uint256[] memory pathCoinIn = new uint256[](3);
+        uint256[] memory pathCoinOut = new uint256[](3);
+        pathPools[0] = 0x7f90122BF0700F9E7e1F688fe926940E8839F353;
+        pathCoinIn[0] = 0;
+        pathCoinOut[0] = 1;
+        pathPools[1] = 0x960ea3e3C7FB317332d990873d354E18d7645590;
+        pathCoinIn[1] = 0;
+        pathCoinOut[1] = 2;
+        pathPools[2] = 0x6eB2dc694eB516B16Dc9FBc678C60052BbdD7d80;
+        pathCoinIn[2] = 0;
+        pathCoinOut[2] = 1;
+        bytes memory path = abi.encode(pathPools, pathCoinIn, pathCoinOut);
+        sh.setPath(0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8, 0x5979D7b546E38E414F7E9822514be443A4800529, address(shc), path);
+        }
+        {
+        address[] memory pathPools = new address[](3);
+        uint256[] memory pathCoinIn = new uint256[](3);
+        uint256[] memory pathCoinOut = new uint256[](3);
+        pathPools[0] = 0x6eB2dc694eB516B16Dc9FBc678C60052BbdD7d80;
+        pathCoinIn[0] = 1;
+        pathCoinOut[0] = 0;
+        pathPools[1] = 0x960ea3e3C7FB317332d990873d354E18d7645590;
+        pathCoinIn[1] = 2;
+        pathCoinOut[1] = 0;
+        pathPools[2] = 0x7f90122BF0700F9E7e1F688fe926940E8839F353;
+        pathCoinIn[2] = 1;
+        pathCoinOut[2] = 0;
+        bytes memory path = abi.encode(pathPools, pathCoinIn, pathCoinOut);
+        sh.setPath(0x5979D7b546E38E414F7E9822514be443A4800529, 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8, address(shc), path);
+        }
+        {
+        address[] memory pathPools1 = new address[](1);
+        uint256[] memory pathCoinIn1 = new uint256[](1);
+        uint256[] memory pathCoinOut1 = new uint256[](1);
+        pathPools1[0] = 0x6eB2dc694eB516B16Dc9FBc678C60052BbdD7d80;
+        pathCoinIn1[0] = 1;
+        pathCoinOut1[0] = 0;
+        bytes memory path1 = abi.encode(pathPools1, pathCoinIn1, pathCoinOut1);
+        sh.setPath(0x5979D7b546E38E414F7E9822514be443A4800529, weth, address(shc), path1);
+        }
+        StrategyKyber s = new StrategyKyber(
+            address(sh),
+            0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8,
+            0xBdEc4a045446F583dc564C0A227FFd475b329bf0,
+            0x114DE2aFFc6A335433dbe9D3D51A8F31a5591fdF,
+            800
+        );
+        s.file("exec", investorActor);
+        s.file("slippage", 1000);
+        //sh.setOracle(0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978, 0xaebDA2c976cfd1eE1977Eac079B4382acb849325);
+
+        IERC20(usdc).approve(address(investor), 1000e6);
+        investor.earn(a, poolUsdc, sid, 1000e6, 0, "");
+        console.log("value", s.rate(s.totalShares())/1e16);
+        */
+
+        /*
+        vm.warp(block.timestamp+1);
+        (,,,,,uint256 sha,) = investor.positions(investor.nextPosition()-1);
+        investor.edit(investor.nextPosition()-1, 0-int256(sha), 0, "");
+        */
+
+        /*
+        s.file("exec", address(investor));
+        StrategyKyber s2 = new StrategyKyber(
+            address(sh),
+            0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8,
+            0xBdEc4a045446F583dc564C0A227FFd475b329bf0,
+            0x114DE2aFFc6A335433dbe9D3D51A8F31a5591fdF,
+            800
+        );
+        s2.file("exec", address(investor));
+        s2.file("exec", address(investorActor));
+        investor.setStrategy(sid, address(s2));
+        console.log("value s", s.rate(s.totalShares())/1e16);
+        console.log("value s2", s2.rate(s2.totalShares())/1e16, s2.totalShares());
+        */
+
+        /*
+        IERC20(usdc).approve(address(investor), 1000e6);
+        investor.earn(deployer, poolUsdc, sid, 1000e6, 0, "");
+        (,,,,, uint256 sha,) = investor.positions(investor.nextPosition() - 1);
+        console.log("value", s.rate(sha) / 1e16);
+        console.log("total", s.rate(s.totalShares()) / 1e16);
+
+        vm.warp(block.timestamp + 1);
+        investor.edit(investor.nextPosition() - 1, 0 - int256(sha), 0, "");
+        */
+    }
+}
