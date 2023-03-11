@@ -63,7 +63,12 @@ export default function DashboardMultisig() {
         ]);
         data = i.encodeFunctionData(
           p[0],
-          newParams.split(",").map((p) => p.trim())
+          newParams.split(",").map((a, i) => {
+            if (p[i] === "bytes32") {
+              return ethers.utils.formatBytes32String(a.trim());
+            }
+            return a.trim();
+          })
         );
       }
       const tx = await contract.add(newTarget, newValue, data);
@@ -72,6 +77,26 @@ export default function DashboardMultisig() {
       setNewValue("");
       setNewAction("");
       setNewParams("");
+      fetchData();
+    } catch (e) {
+      alert(e);
+    }
+  }
+
+  async function onInvestorStatus(value) {
+    try {
+      const contract = getContract();
+      const i = new ethers.utils.Interface([`function file(bytes32,uint256)`]);
+      const data = i.encodeFunctionData("file", [
+        ethers.utils.formatBytes32String("status"),
+        value,
+      ]);
+      const tx = await contract.add(
+        "0x8accf43Dd31DfCd4919cc7d65912A475BfA60369",
+        "0",
+        data
+      );
+      await tx.wait();
       fetchData();
     } catch (e) {
       alert(e);
@@ -284,6 +309,41 @@ export default function DashboardMultisig() {
         <button className="button" onClick={onSubmit}>
           Add transaction
         </button>
+
+        <div className="mb-6"></div>
+
+        <div className="mb-2">
+          <button
+            className="button button-primary button-link"
+            onClick={() => onInvestorStatus("4")}
+          >
+            Protocol: Normal operations (Deposit, Withdraw, Liquidate)
+          </button>
+        </div>
+        <div className="mb-2">
+          <button
+            className="button button-primary button-link"
+            onClick={() => onInvestorStatus("3")}
+          >
+            Protocol: Paused - Liquidations - Widthdraw
+          </button>
+        </div>
+        <div className="mb-2">
+          <button
+            className="button button-primary button-link"
+            onClick={() => onInvestorStatus("2")}
+          >
+            Protocol: Paused - Liquidations
+          </button>
+        </div>
+        <div>
+          <button
+            className="button button-primary button-link"
+            onClick={() => onInvestorStatus("1")}
+          >
+            Protocol: Paused
+          </button>
+        </div>
       </div>
     </div>
   );
