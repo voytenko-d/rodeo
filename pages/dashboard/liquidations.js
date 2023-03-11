@@ -54,8 +54,13 @@ export default function DashboardLiquidations() {
                   <td>{p.index}</td>
                   <td>{strategy?.name || "?"}</td>
                   <td>{asset.symbol}</td>
-                  <td>{formatNumber(p.data.shares, 18, 4)}</td>
-                  <td>{formatNumber(p.data.borrow, asset.decimals)}</td>
+                  <td>{formatNumber(parseUnits(p.data.amount, 0), 18, 4)}</td>
+                  <td>
+                    {formatNumber(parseUnits(p.data.borrow, 0), asset.decimals)}
+                  </td>
+                  <td>
+                    {formatNumber(parseUnits(p.data.fee, 0), asset.decimals)}
+                  </td>
                   <td>{formatDate(p.created)}</td>
                   <td>{formatDate(p.time)}</td>
                 </tr>
