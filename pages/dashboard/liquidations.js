@@ -35,6 +35,7 @@ export default function DashboardLiquidations() {
               <th>Pool</th>
               <th>Value</th>
               <th>Borrow</th>
+              <th>Fee</th>
               <th>Created</th>
               <th>Liquidated</th>
             </tr>
@@ -54,7 +55,7 @@ export default function DashboardLiquidations() {
                   <td>{p.index}</td>
                   <td>{strategy?.name || "?"}</td>
                   <td>{asset.symbol}</td>
-                  <td>{formatNumber(parseUnits(p.data.amount, 0), 18, 4)}</td>
+                  <td>{p.data.amount}</td>
                   <td>
                     {formatNumber(parseUnits(p.data.borrow, 0), asset.decimals)}
                   </td>
