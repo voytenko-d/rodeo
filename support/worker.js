@@ -335,7 +335,7 @@ task("oracles", 5, async () => {
         console.log("oracle", o);
         await call(o, "+update--");
       } catch (e) {
-        console.log("error oracle", e);
+        console.log("error oracle", o, e.error.data.message, e.error.data.data);
       }
     }
   }
