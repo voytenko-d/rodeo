@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import {
   ONE,
   rpcUrls,
@@ -156,7 +157,12 @@ export default function DashboardMultisig() {
   return (
     <div className="container">
       <div className="card mt-4 mb-4">
-        <h2 className="title mt-0">Multisig</h2>
+        <div className="flex items-center">
+          <h2 className="title mt-0 flex-1">Multisig</h2>
+          <div>
+            <ConnectButton showBalance={false} />
+          </div>
+        </div>
         <h3 className="subtitle">Overview</h3>
         <table className="table mb-6">
           <tbody>

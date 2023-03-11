@@ -229,6 +229,14 @@ route("/positions/events", (req, res) => {
   return sql(q, req.query.chain, req.query.index);
 });
 
+route("/liquidations", (req, res) => {
+  return sql(`select time, p.chain, p."index", data, p.pool, p.strategy, p.created
+    from positions_events
+    left join positions p on p."index" = positions_events."index"
+    where name = 'Kill' and time > now() - interval '7 days'
+    order by time desc`);
+});
+
 // UTILS //////////////////////////////////////////////////////////////////////
 
 function route(path, handler) {
