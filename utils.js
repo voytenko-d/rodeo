@@ -913,6 +913,9 @@ export function formatError(e) {
     e?.error?.data?.originalError?.message ||
     e.message ||
     String(e);
+  if (message.includes("ERC20: transfer amount exceeds balance")) {
+    return "Farm token balance too low for the moment";
+  }
   if (message.includes("User denied transaction signature")) {
     return "You cancelled the transaction";
   }
@@ -930,6 +933,9 @@ export function formatError(e) {
   }
   if (e?.error?.data?.data === "0xebb5bbef") {
     return "Not enough value withdrawn for borrow repay";
+  }
+  if (message.includes("cannot estimate gas; transaction")) {
+    return `${e.error.data.message} (${e.error.data.data}) from:${e.transaction.from} data:${e.transaction.data}`;
   }
   return message;
 }
