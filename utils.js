@@ -675,6 +675,7 @@ const whitelist = [
   "0xdf4cdd2ab79b487edabd3fb9781c57e4897daeae",
   "0x7ec80880f782159ae8ba44ffb5c2f5db7f67a99d",
   "0x41c6beb49d2d471c1f6889c800c6ae92c6d1abb3",
+  "0xab41044b70e75a58147630ef8a475cf49ebfe7c5",
 ];
 
 export const rpcUrl =
