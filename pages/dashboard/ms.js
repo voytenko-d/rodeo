@@ -104,9 +104,12 @@ export default function DashboardMultisig() {
     }
   }
 
-  async function onConfirm(i) {
+  async function onConfirm(id, i) {
     const contract = getContract();
-    const tx = await contract.confirm(i, false);
+    let execute = false;
+    if (data.transactions[5][i].toNumber() + 1 >= data.threshold)
+      execute = true;
+    const tx = await contract.confirm(id, execute);
     await tx.wait();
     fetchData();
   }
@@ -265,8 +268,12 @@ export default function DashboardMultisig() {
                   <td>
                     {data.transactions[4][i] ? (
                       <a onClick={() => onView(id - 1)}>Tx</a>
+                    ) : confirmations == data.threshold - 1 ? (
+                      <a onClick={() => onConfirm(id - 1, i)}>
+                        Confirm & Execute
+                      </a>
                     ) : confirmations < data.threshold ? (
-                      <a onClick={() => onConfirm(id - 1)}>Confirm</a>
+                      <a onClick={() => onConfirm(id - 1, i)}>Confirm</a>
                     ) : (
                       <a onClick={() => onExecute(id - 1)}>Execute</a>
                     )}
