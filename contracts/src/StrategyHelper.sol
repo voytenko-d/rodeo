@@ -70,8 +70,8 @@ contract StrategyHelper is Util {
     function swap(address ast0, address ast1, uint256 amt, uint256 slp, address to) external returns (uint256) {
         if (amt == 0) return 0;
         if (ast0 == ast1) {
-          if (!IERC20(ast0).transferFrom(msg.sender, to, amt)) revert TransferFailed();
-          return amt;
+            if (!IERC20(ast0).transferFrom(msg.sender, to, amt)) revert TransferFailed();
+            return amt;
         }
         Path memory path = paths[ast0][ast1];
         if (path.venue == address(0)) revert UnknownPath();
@@ -80,6 +80,29 @@ contract StrategyHelper is Util {
         uint256 before = IERC20(ast1).balanceOf(to);
         IStrategyHelperVenue(path.venue).swap(ast0, path.path, amt, min, to);
         return IERC20(ast1).balanceOf(to) - before;
+    }
+}
+
+contract StrategyHelperMulti {
+    error UnderAmountMin();
+
+    StrategyHelper sh;
+
+    constructor(address _sh) {
+        sh = StrategyHelper(_sh);
+    }
+
+    function swap(address ast, bytes calldata path, uint256 amt, uint256 min, address to) external {
+        address lastAsset = ast;
+        uint256 lastAmount = amt;
+        (address[] memory assets) = abi.decode(path, (address[]));
+        for (uint256 i = 1; i < assets.length; i++) {
+            IERC20(lastAsset).approve(address(sh), lastAmount);
+            lastAmount = sh.swap(lastAsset, assets[i], lastAmount, 9000, address(this));
+            lastAsset = assets[i];
+        }
+        if (lastAmount < min) revert UnderAmountMin();
+        IERC20(lastAsset).transfer(to, lastAmount);
     }
 }
 

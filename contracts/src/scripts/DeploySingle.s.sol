@@ -9,7 +9,7 @@ import {Pool} from "../Pool.sol";
 import {Strategy} from "../Strategy.sol";
 import {Configurator} from "../support/Configurator.sol";
 import {Multisig} from "../support/Multisig.sol";
-import {StrategyHelper, StrategyHelperUniswapV2} from "../StrategyHelper.sol";
+import {StrategyHelper, StrategyHelperMulti} from "../StrategyHelper.sol";
 import {PartnerProxy} from "../PartnerProxy.sol";
 import {StrategyGMXGLP} from "../StrategyGMXGLP.sol";
 import {OracleUniswapV2} from "../OracleUniswapV2.sol";
@@ -74,8 +74,8 @@ contract DeploySingle {
 
         vm.startBroadcast();
 
-        //multisig.add(0x0d47CF8633c4F4A8733BE5a4fcC9e4Be8B1c628D, 0, abi.encodeWithSignature("file(bytes32,uint256)", bytes32("slippage"), 250));
-        //multisig.add(address(strategyHelper), 0, abi.encodeWithSignature("setPath(address,address,address,bytes)", 0x51318B7D00db7ACc4026C88c3952B66278B6A67F, 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8, 0x4cA2a8cC7B1110CF3961D1F4AAB195d3Ab61BF9b, abi.encodePacked(0x51318B7D00db7ACc4026C88c3952B66278B6A67F, weth, 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8)));
+        //multisig.add(0x390358DEf53f2316671ed3B13D4F4731618Ff6A3, 0, abi.encodeWithSignature("file(bytes32,uint256)", bytes32("slippage"), 200));
+        //multisig.add(address(strategyHelper), 0, abi.encodeWithSignature("setPath(address,address,address,bytes)", 0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8, weth, 0xb1Ae664e23332eE54e0C029937e26058a08708cC, abi.encodePacked(weth, bytes32(hex"cc65a812ce382ab909a11e434dbf75b34f1cc59d000200000000000000000001"))));
 
         /*
         //PartnerProxy proxy = new PartnerProxy();

@@ -14,6 +14,7 @@
 **Pricing/Oracles**
 
 - StrategyHelper https://arbiscan.io/address/0x72f7101371201CeFd43Af026eEf1403652F115EE
+- StrategyHelperMulti https://arbiscan.io/address/0xee2976041f3f2B8999C136db1355d894d10D27e8
 - StrategyHelperUniswapV2 (SushiSwap) * https://arbiscan.io/address/0x4cA2a8cC7B1110CF3961D1F4AAB195d3Ab61BF9b
 - StrategyHelperUniswapV2 (Camelot) https://arbiscan.io/address/0x0D86B4749451e3cC139cB0fF31eCc7eD8ee40186
 - StrategyHelperUniswapV3 * https://arbiscan.io/address/0xaFF008DD677d2a9fd74D27B26Efc10A8e3f7BDaD

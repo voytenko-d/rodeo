@@ -8,7 +8,7 @@ import {InvestorHelper} from "../InvestorHelper.sol";
 import {Pool} from "../Pool.sol";
 import {Strategy} from "../Strategy.sol";
 import {Multisig} from "../support/Multisig.sol";
-import {StrategyHelper, StrategyHelperCurve} from "../StrategyHelper.sol";
+import {StrategyHelper, StrategyHelperMulti} from "../StrategyHelper.sol";
 import {PositionManager, ERC721TokenReceiver} from "../PositionManager.sol";
 import {StrategyGMXGLP} from "../StrategyGMXGLP.sol";
 import {OracleUniswapV2} from "../OracleUniswapV2.sol";
@@ -83,10 +83,18 @@ contract Debug is DSTest, ERC721TokenReceiver {
         console.log("value new", s.rate(s.totalShares()));
         //*/
 
+        /*
+        address shm = address(new StrategyHelperMulti(address(strategyHelper)));
         vm.stopPrank();
         vm.startPrank(address(multisig));
-        //StrategyGMXGLP(0x0d47CF8633c4F4A8733BE5a4fcC9e4Be8B1c628D).file("slippage", 250);
-        //StrategyHelper(strategyHelper).setPath(0x51318B7D00db7ACc4026C88c3952B66278B6A67F, 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8, 0x4cA2a8cC7B1110CF3961D1F4AAB195d3Ab61BF9b, abi.encodePacked(0x51318B7D00db7ACc4026C88c3952B66278B6A67F, weth, 0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8));
+        StrategyGMXGLP(0x390358DEf53f2316671ed3B13D4F4731618Ff6A3).file("slippage", 200);
+        StrategyHelper(strategyHelper).setPath(0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8, weth, 0xb1Ae664e23332eE54e0C029937e26058a08708cC, abi.encode(weth, bytes32(hex"cc65a812ce382ab909a11e434dbf75b34f1cc59d000200000000000000000001")));
+        address[] memory assets = new address[](3);
+        assets[0] = 0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8;
+        assets[1] = weth;
+        assets[2] = usdc;
+        StrategyHelper(strategyHelper).setPath(0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8, usdc, shm, abi.encode(assets));
+        */
         vm.stopPrank();
         vm.startPrank(0x4877809ac00cFdc0B81Eaed6f715189983a41B7E);
         address(0x5e4d7F61cC608485A2E4F105713D26D58a9D0cF6).call(hex"20f117190000000000000000000000000000000000000000000000000000000000000160fffffffffffffffffffffffffffffffffffffffffffffffff3773f6e7c2c58c70000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000032");
