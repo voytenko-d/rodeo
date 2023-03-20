@@ -258,7 +258,7 @@ export default function LendPool() {
         parsedAmount.gt(parseUnits("10000", asset.decimals))
       ) {
         throw new Error(
-          "During ALPHA, amount needs to be between $10 and $10000"
+          "During BETA, amount needs to be between $10 and $10000"
         );
       }
 
