@@ -7,6 +7,22 @@ Rodeo Finance's world live here.
 - `pages/*.js` Website pages
 - `pages/*/*.js` App pages
 
+### Setup
+
+Follow there steps to run the app locally:
+
+1. Install node, npm, [forge/foundry](https://github.com/foundry-rs/foundry/tree/master/foundryup), postgresql
+1. Make sure you have a postgres user named `admin` with a password `admin` created (`CREATE ROLE admin WITH SUPERUSER LOGIN PASSWORD 'admin';`)
+2. Run `npm run db` to create the database tables
+3. In a separate terminal, in the `contracts/` folder, run `make node`
+4. In the `contracts/` folder, run `make deploy-local` to deploy all contracts to your local blockchain node running in the other terminal
+5. You are now ready to run the app using `npm run start`
+6. If you want to run the background worker to backfill some APY / historical statistics you can run `npm run worker` anytime
+
+Make sure to add the private key `0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80` to metamask, this is the local blockchain account that has some test USDC to use.
+
+If you want to run the app against the mainnet contracts, it should be as simple as connecting metamask while on the Arbitrum One network but running the app with `npm run prod` will make sure that a few enviroment variables are more appropriate for a mainnet environment (especially around API endpoints and APY fetching)
+
 ### API
 
 **`/apy/defillama`**
