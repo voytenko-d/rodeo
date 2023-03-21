@@ -1154,7 +1154,11 @@ export function usePositions() {
           */
         };
 
-        p.profitUsd = p.sharesUsd.sub(p.amountUsd).sub(p.borrowUsd);
+        p.profitUsd = p.sharesUsd
+          .sub(p.amountUsd)
+          .sub(p.borrowUsd)
+          .mul(90)
+          .div(100);
         p.profitPercent = parseUnits("0");
         if (p.amountUsd.gt("0")) {
           p.profitPercent = p.profitUsd.mul(ONE).div(p.amountUsd);
