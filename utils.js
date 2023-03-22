@@ -200,7 +200,7 @@ export const strategies = {
       ],
     },
     {
-      name: "plsGLP",
+      name: "plvGLP",
       protocol: "PlutusDAO",
       icon: "/protocols/plutusdao.png",
       address: "0x81E37797D44d348E664247298Faa6A90Db90C1B9",
