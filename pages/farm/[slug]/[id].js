@@ -86,7 +86,7 @@ export default function FarmPosition() {
   if (action === "deposit") title = "Add collateral";
   if (action === "withdraw") title = "Close position";
 
-  const ASTONE = parseUnits("1", asset.decimals);
+  const ASTONE = parseUnits("1", asset?.decimals || 18);
   let parsedAmount = parseUnits("0");
   let positionChanged = false;
   let updatedLeverage = 1;
