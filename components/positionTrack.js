@@ -13,6 +13,11 @@ export default function PositionTrack({
   min = Math.log(min);
   max = Math.log(max);
 
+  if (value === "1.00") {
+    clamped = max * 0.95;
+    value = "∞";
+  }
+
   const p = trackRef.current
     ? (trackRef.current.offsetWidth * (clamped - min)) / (max - min)
     : 0;
@@ -22,7 +27,7 @@ export default function PositionTrack({
       ref={trackRef}
       className={`position-track flex flex-column ${className}`}
     >
-      {value !== "1.00" && value !== "0.00" ? (
+      {value !== "0.00" ? (
         <div className="position-track__tooltip" style={{ left: `${p}px` }}>
           {value}
         </div>
