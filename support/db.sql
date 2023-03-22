@@ -77,3 +77,11 @@ CREATE TABLE tasks_schedules (
   id text NOT NULL PRIMARY KEY,
   time timestamptz NOT NULL DEFAULT now()
 );
+
+CREATE TABLE earns (
+  id text NOT NULL PRIMARY KEY,
+  time timestamptz NOT NULL DEFAULT now(),
+  block decimal NOT NULL,
+  earn decimal NOT NULL,
+  tvl decimal NOT NULL
+);
