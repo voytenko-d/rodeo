@@ -243,7 +243,7 @@ function Position({ position, refetch }) {
           <div>
             {position.shares.gt(0) ? (
               <Link href={`/farm/${strategy?.slug}/${position?.id}`}>
-                <a className="button w-full">Adjust</a>
+                <a className="button w-full">Details</a>
               </Link>
             ) : (
               <button

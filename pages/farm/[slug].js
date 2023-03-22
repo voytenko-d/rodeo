@@ -416,7 +416,7 @@ function Position({ position }) {
           <div className="label hide show-phone">&nbsp;</div>
           <div>
             <Link href={`/farm/${strategy?.slug}/${position.id}`}>
-              <a className="button w-full">Adjust</a>
+              <a className="button w-full">Details</a>
             </Link>
           </div>
         </div>
