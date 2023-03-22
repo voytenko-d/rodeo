@@ -739,6 +739,53 @@ export default function FarmPosition() {
       <div className="grid-2" style={{ gridTemplateColumns: "2fr 1fr" }}>
         <div>
           <div>
+            <div className="title">Position Information</div>
+            <div className="card mb-8">
+              <div className="">
+                <div className="position-row">
+                  <div className="label-position">Position value:</div>${" "}
+                  {position ? formatNumber(position.sharesUsd) : "0.00"}
+                  {positionChanged
+                    ? " → $ " + formatNumber(newSharesUsd)
+                    : null}
+                </div>
+                <div className="position-row">
+                  <div className="label-position">Debt value:</div>${" "}
+                  {position ? formatNumber(position.borrowUsd) : "0.00"}
+                  {positionChanged
+                    ? " → $ " + formatNumber(newBorrowUsd)
+                    : null}
+                </div>
+                <div className="position-row">
+                  <div className="label-position">Health:</div>
+                  {position
+                    ? position.health.eq(ONE)
+                      ? "∞"
+                      : formatNumber(position.health)
+                    : "0.00"}
+                  {positionChanged ? (
+                    <>
+                      {" → "}
+                      {newHealth.eq(ONE) ? "∞" : formatNumber(newHealth)}
+                    </>
+                  ) : null}
+                </div>
+                <div className="position-row">
+                  <div className="label-position">Liquidation:</div>${" "}
+                  {formatNumber(position?.liquidationUsd || 0, 18, 1)} (
+                  {formatNumber(position?.liquidationPercent || 0, 16, 0)}%)
+                  {positionChanged ? (
+                    <>
+                      {" "}
+                      → {formatNumber(newLiquidationUsd, 18, 1)} (
+                      {formatNumber(newLiquidationPercent, 16, 0)}%)
+                    </>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
             <div className="title">{title}</div>
             {position && !action ? (
               renderActions()
@@ -786,53 +833,6 @@ export default function FarmPosition() {
                 </div>
               </div>
             )}
-          </div>
-          <div>
-            <div className="title">Position Information</div>
-            <div className="card mb-8">
-              <div className="">
-                <div className="position-row">
-                  <div className="label-position">Position value:</div>${" "}
-                  {position ? formatNumber(position.sharesUsd) : "0.00"}
-                  {positionChanged
-                    ? " → $ " + formatNumber(newSharesUsd)
-                    : null}
-                </div>
-                <div className="position-row">
-                  <div className="label-position">Debt value:</div>${" "}
-                  {position ? formatNumber(position.borrowUsd) : "0.00"}
-                  {positionChanged
-                    ? " → $ " + formatNumber(newBorrowUsd)
-                    : null}
-                </div>
-                <div className="position-row">
-                  <div className="label-position">Health:</div>
-                  {position
-                    ? position.health.eq(ONE)
-                      ? "∞"
-                      : formatNumber(position.health)
-                    : "0.00"}
-                  {positionChanged ? (
-                    <>
-                      {" → "}
-                      {newHealth.eq(ONE) ? "∞" : formatNumber(newHealth)}
-                    </>
-                  ) : null}
-                </div>
-                <div className="position-row">
-                  <div className="label-position">Liquidation:</div>${" "}
-                  {formatNumber(position?.liquidationUsd || 0, 18, 1)} (
-                  {formatNumber(position?.liquidationPercent || 0, 16, 0)}%)
-                  {positionChanged ? (
-                    <>
-                      {" "}
-                      → {formatNumber(newLiquidationUsd, 18, 1)} (
-                      {formatNumber(newLiquidationPercent, 16, 0)}%)
-                    </>
-                  ) : null}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
         <div>
