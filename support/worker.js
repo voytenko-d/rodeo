@@ -282,16 +282,10 @@ task("events", 15, async () => {
 
       for (let i in parsedLogs) {
         const l = parsedLogs[i];
-        const values = {};
-        for (let k of Object.keys(l.args)) {
-          if (!Number.isNaN(parseInt(k))) continue;
-          values[k] = l.args[k].toString();
-        }
-        await sqlInsert("earns", {
-          time: new Date(),
+        await sqlInsert("strategies_profits", {
           block: logs[i].blockNumber,
-          earn: values.amt,
-          tvl: values.val,
+          earn: l.args.profit,
+          tvl: l.args.tvl,
         });
       }
     }

@@ -78,7 +78,7 @@ CREATE TABLE tasks_schedules (
   time timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE earns (
+CREATE TABLE strategies_profits (
   id text NOT NULL PRIMARY KEY,
   time timestamptz NOT NULL DEFAULT now(),
   block decimal NOT NULL,
