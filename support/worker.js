@@ -261,7 +261,6 @@ task("events", 15, async () => {
       });
     }
 
-    // earn events
     for (let s of strategies[config.chain]) {
       const strategyContract = new ethers.Contract(
           s.address,
@@ -269,7 +268,7 @@ task("events", 15, async () => {
             "event Earn(uint256 val, uint256 amt)",
           ]
       );
-      const logs1 = await provider.getLogs({
+      const logs = await provider.getLogs({
         address: s.address,
         topics: [
           [
@@ -279,21 +278,20 @@ task("events", 15, async () => {
         fromBlock: currentBlock,
         toBlock: currentBlock + batchSize,
       });
-      const parsedLogs1 = logs1.map((l) => strategyContract.interface.parseLog(l));
+      const parsedLogs = logs.map((l) => strategyContract.interface.parseLog(l));
 
-      for (let i in parsedLogs1) {
-        const l = parsedLogs1[i];
+      for (let i in parsedLogs) {
+        const l = parsedLogs[i];
         const values = {};
         for (let k of Object.keys(l.args)) {
           if (!Number.isNaN(parseInt(k))) continue;
           values[k] = l.args[k].toString();
         }
-        console.log('@earn: ', values);
         await sqlInsert("earns", {
           time: new Date(),
-          block: currentBlock,
-          earn: 0, // TODO calc
-          tvl: 0, // TODO calc
+          block: logs[i].blockNumber,
+          earn: values.amt,
+          tvl: values.amt,
         });
       }
     }
