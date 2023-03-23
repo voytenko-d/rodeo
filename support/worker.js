@@ -265,7 +265,7 @@ task("events", 15, async () => {
       const strategyContract = new ethers.Contract(
           s.address,
           [
-            "event Earn(uint256 val, uint256 amt)",
+            "event Earn(uint256 tvl, uint256 profit)",
           ]
       );
       const logs = await provider.getLogs({
