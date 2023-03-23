@@ -261,6 +261,35 @@ task("events", 15, async () => {
       });
     }
 
+    for (let s of strategies[config.chain]) {
+      const strategyContract = new ethers.Contract(
+          s.address,
+          [
+            "event Earn(uint256 tvl, uint256 profit)",
+          ]
+      );
+      const logs = await provider.getLogs({
+        address: s.address,
+        topics: [
+          [
+            strategyContract.filters.Earn().topics[0],
+          ],
+        ],
+        fromBlock: currentBlock,
+        toBlock: currentBlock + batchSize,
+      });
+      const parsedLogs = logs.map((l) => strategyContract.interface.parseLog(l));
+
+      for (let i in parsedLogs) {
+        const l = parsedLogs[i];
+        await sqlInsert("strategies_profits", {
+          block: logs[i].blockNumber,
+          earn: l.args.profit,
+          tvl: l.args.tvl,
+        });
+      }
+    }
+
     currentBlock += batchSize;
   }
 });
