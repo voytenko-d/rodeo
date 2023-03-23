@@ -11,7 +11,7 @@ import {Configurator} from "../support/Configurator.sol";
 import {Multisig} from "../support/Multisig.sol";
 import {StrategyHelper, StrategyHelperMulti} from "../StrategyHelper.sol";
 import {PartnerProxy} from "../PartnerProxy.sol";
-import {StrategyGMXGLP} from "../StrategyGMXGLP.sol";
+import {StrategyJonesUsdc} from "../StrategyJonesUsdc.sol";
 import {OracleUniswapV2} from "../OracleUniswapV2.sol";
 import {console} from "../test/utils/console.sol";
 
@@ -58,23 +58,26 @@ contract DeploySingle {
         //address gmx = 0xfc5A1A6EB076a2C7aD06eD22C90d7E710E35ad0a;
         //address umami = 0x1622bF67e6e5747b81866fE0b85178a93C7F86e3;
 
-        //Investor investor = Investor(0x8accf43Dd31DfCd4919cc7d65912A475BfA60369);
+        address investor = 0x8accf43Dd31DfCd4919cc7d65912A475BfA60369;
         address strategyHelper = 0x72f7101371201CeFd43Af026eEf1403652F115EE;
-        //address investorActor = 0x9D6A853Da8BF51386240Ad1ed19E13C48dF3a2A7;
+        address investorActor = 0x9D6A853Da8BF51386240Ad1ed19E13C48dF3a2A7;
         //address poolUsdc = 0x0032F5E1520a66C6E572e96A11fBF54aea26f9bE;
-        address shss = 0x4cA2a8cC7B1110CF3961D1F4AAB195d3Ab61BF9b;
+        //address shss = 0x4cA2a8cC7B1110CF3961D1F4AAB195d3Ab61BF9b;
         //address shv3 = 0xaFF008DD677d2a9fd74D27B26Efc10A8e3f7BDaD;
         //address shb = 0xb1Ae664e23332eE54e0C029937e26058a08708cC;
         //address shc = 0x5C0B2558e38410ee11C942694914F1780F504f82;
-        address shCam = 0x0D86B4749451e3cC139cB0fF31eCc7eD8ee40186;
+        //address shCam = 0x0D86B4749451e3cC139cB0fF31eCc7eD8ee40186;
 
-        Multisig multisig = Multisig(payable(0xaB7d6293CE715F12879B9fa7CBaBbFCE3BAc0A5a));
         //address admin = 0x5d52C98D4B2B9725D9a1ea3CcAf44871a34EFB96;
-        //address deployer = 0x20dE070F1887f82fcE2bdCf5D6d9874091e6FAe9;
+        address deployer = 0x20dE070F1887f82fcE2bdCf5D6d9874091e6FAe9;
+        Multisig multisig = Multisig(payable(0xaB7d6293CE715F12879B9fa7CBaBbFCE3BAc0A5a));
 
         vm.startBroadcast();
 
-        //multisig.add(0x390358DEf53f2316671ed3B13D4F4731618Ff6A3, 0, abi.encodeWithSignature("file(bytes32,uint256)", bytes32("slippage"), 200));
+        multisig.add(usdc, 0, abi.encodeWithSignature("transfer(address,uint256)", 0x2AeDb0E9A6BB2571CD9651D3297f83e5C9379480, 1116493829));
+
+        //multisig.add(0x5859731D7b7e413A958eA1cDb9020C611b016395, 0, abi.encodeWithSignature("call(address,uint256,bytes)", 0x2F43c6475f1ecBD051cE486A9f3Ccc4b03F3d713, 0, abi.encodeWithSignature("redeemStable(uint256)", 1679529600)));
+        //multisig.add(0x5859731D7b7e413A958eA1cDb9020C611b016395, 0, abi.encodeWithSignature("pull(address)", usdc));
         //multisig.add(address(strategyHelper), 0, abi.encodeWithSignature("setPath(address,address,address,bytes)", 0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8, weth, 0xb1Ae664e23332eE54e0C029937e26058a08708cC, abi.encodePacked(weth, bytes32(hex"cc65a812ce382ab909a11e434dbf75b34f1cc59d000200000000000000000001"))));
 
         /*

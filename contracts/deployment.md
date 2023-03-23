@@ -39,7 +39,7 @@
 - StrategyKyber wstETH/ETH https://arbiscan.io/address/0xcF03B33851F088d58E921d8aB5D60Dc1c3238758
 - StrategyPlutusPlvGlp https://arbiscan.io/address/0x0d47CF8633c4F4A8733BE5a4fcC9e4Be8B1c628D
 - StrategyJonesUsdc PartnerProxy https://arbiscan.io/address/0x5859731D7b7e413A958eA1cDb9020C611b016395
-- StrategyJonesUsdc https://arbiscan.io/address/0x6A77FEC52D8575AC70F5196F833bd4A6c86c81AE
+- StrategyJonesUsdc https://arbiscan.io/address/0x2AeDb0E9A6BB2571CD9651D3297f83e5C9379480
 - StrategyJoe ETH/USDC https://arbiscan.io/address/0xCE0488a9FfD70156d8914C02D95fA320DbBE93Ab
 - StrategyJoe MAGIC/ETH https://arbiscan.io/address/0xbA8A58Fd6fbc9fAcB8BCf349C94B87717a4BC00f
 

@@ -16,6 +16,7 @@ interface IJonesGlpAdapter {
 interface IJonesGlpVaultRouter {
     function EXIT_COOLDOWN() external view returns (uint256);
     function stableRewardTracker() external view returns (address);
+    function userSignal(address, uint256) external view returns (uint256, uint256, bool, bool);
     function stableWithdrawalSignal(uint256 amt, bool cpd) external returns (uint256);
     function cancelStableWithdrawalSignal(uint256 eph, bool cpd) external;
     function redeemStable(uint256 eph) external returns (uint256);
@@ -62,6 +63,10 @@ contract StrategyJonesUsdc is Strategy {
 
     function _rate(uint256 sha) internal view override returns (uint256) {
         uint256 tma = tracker.stakedAmount(address(proxy));
+        if (signaledStablesEpoch > 0) {
+            (, uint256 shares,,) = vaultRouter.userSignal(address(proxy), signaledStablesEpoch);
+            tma += shares;
+        }
         uint256 ast0 = asset.balanceOf(address(this));
         uint256 ast1 = vault.previewRedeem(tma) * (10000 - redeemFee) / 10000;
         uint256 val = strategyHelper.value(address(asset), ast0+ast1);
@@ -102,6 +107,7 @@ contract StrategyJonesUsdc is Strategy {
         if (bal > tar) {
             if (signaledStablesEpoch > 0) {
                 proxy.call(address(vaultRouter), 0, abi.encodeWithSelector(vaultRouter.cancelStableWithdrawalSignal.selector, signaledStablesEpoch, false));
+                signaledStablesEpoch = 0;
             }
             uint256 amt = (bal-tar) * (10 ** asset.decimals()) / 1e18;
             IERC20(asset).transfer(address(proxy), amt);
@@ -112,6 +118,7 @@ contract StrategyJonesUsdc is Strategy {
             if (signaledStablesEpoch > block.timestamp) {
                 proxy.call(address(vaultRouter), 0, abi.encodeWithSelector(vaultRouter.redeemStable.selector, signaledStablesEpoch));
                 proxy.pull(address(asset));
+                signaledStablesEpoch = 0;
             }
             if (signaledStablesEpoch == 0) {
                 uint256 amt = (tar-bal) * (10 ** asset.decimals()) / 1e18;
@@ -129,7 +136,6 @@ contract StrategyJonesUsdc is Strategy {
     }
 
     function _move(address) internal override {
-        // can only earn once whitelisted
-        //earn();
+        // can only earn once whitelisted, let it happen post move
     }
 }

@@ -184,7 +184,7 @@ export const strategies = {
       name: "jUSDC",
       protocol: "JonesDAO",
       icon: "/protocols/jonesdao.png",
-      address: "0x6A77FEC52D8575AC70F5196F833bd4A6c86c81AE",
+      address: "0x2AeDb0E9A6BB2571CD9651D3297f83e5C9379480",
       index: 20,
       apy: { type: "defillama", id: "dde58f35-2d08-4789-a641-1225b72c3147" },
       description:
@@ -203,7 +203,7 @@ export const strategies = {
       name: "plvGLP",
       protocol: "PlutusDAO",
       icon: "/protocols/plutusdao.png",
-      address: "0x81E37797D44d348E664247298Faa6A90Db90C1B9",
+      address: "0x0d47CF8633c4F4A8733BE5a4fcC9e4Be8B1c628D",
       index: 21,
       apy: { type: "plutus", id: "plvglp" },
       description:
