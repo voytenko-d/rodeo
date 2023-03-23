@@ -36,11 +36,12 @@ export default function FarmPosition() {
     useWeb3();
   const { data: pools } = usePools();
   const { data: positions, refetch: positionsRefetch } = usePositions();
-  const [tab, setTab] = useState("deposit");
+  const [action, setAction] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState();
   const [amount, setAmount] = useState("");
+  const [amountBorrow, setAmountBorrow] = useState("");
   const strategy = (strategies[networkName] || []).find(
     (s) => s.slug == router.query.slug
   );
@@ -78,6 +79,14 @@ export default function FarmPosition() {
       ? formatChartDate(chartData[chartData.length - 1].date)
       : null;
 
+  let title = "Adjust position";
+  if (!position) title = "New Position";
+  if (action === "borrow") title = "Borrow more";
+  if (action === "repay") title = "Decrease debt";
+  if (action === "deposit") title = "Add collateral";
+  if (action === "withdraw") title = "Close position";
+
+  const ASTONE = parseUnits("1", asset?.decimals || 18);
   let parsedAmount = parseUnits("0");
   let positionChanged = false;
   let updatedLeverage = 1;
@@ -92,6 +101,7 @@ export default function FarmPosition() {
   let newLiquidationPercent = parseUnits("0");
   let newLeverage = parseUnits("1");
   let newApy = parseUnits("0");
+  let borrowApr = parseUnits("0");
 
   try {
     if (!pool || !asset) throw new Error("Missing pool or asset");
@@ -100,95 +110,82 @@ export default function FarmPosition() {
       .mul(ONE)
       .div(parseUnits("1", asset.decimals));
     const parsedAmountUsd = parsedAmount.mul(adjustedPrice).div(ONE);
-    if (
-      parsedAmount.gt("0") ||
-      (position &&
-        leverage != 1 &&
-        leverage != parseFloat(formatNumber(position.leverage, 18, 1)))
-    ) {
+    if (parsedAmount.gt("0")) {
       positionChanged = true;
     }
 
-    // Calculate the values to pass to `earn()` for a new "deposit"
-    editBorrow = parsedAmount.mul(((leverage - 1) * 10).toFixed(0)).div(10);
-
     // Calculate the values to pass to `edit()`
     if (position) {
-      editShares = bnMin(
-        position.shares,
-        position.shares
-          .mul(parsedAmount)
+      if (action === "borrow") {
+        editBorrow = parsedAmount;
+      }
+      if (action === "repay") {
+        editBorrow = parsedAmount.mul(ONE).div(pool.data.index).mul(-1);
+        if (parsedAmount.eq(position.borrowAst)) {
+          editBorrow = position.borrow.mul(-1);
+        }
+        editShares = position.shares
+          .mul(editBorrow.mul(pool.data.index).div(ONE))
           .div(position.sharesAst)
           .mul(101)
-          .div(100)
-      );
-      const newSharesAst = position.shares
-        .add(editShares.mul(tab == "deposit" ? 1 : -1))
-        .mul(position.sharesAst)
-        .div(position.shares);
-      if (newSharesAst.sub(position.borrowAst).gt(0)) {
+          .div(100);
+      }
+      if (action === "deposit") {
+        editShares = parsedAmount;
+      }
+      if (action === "withdraw") {
+        editShares = position.shares
+          .mul(parsedAmount)
+          .div(position.sharesAst)
+          .mul(-1);
+        const max = position.sharesAst.sub(position.borrowAst);
+        if (parsedAmount.eq(max)) {
+          editShares = position.shares.mul(-1);
+          editBorrow = position.borrow.mul(-1);
+        }
+      }
+
+      let newBorrowAst = position.borrowAst;
+      let newSharesAst = position.sharesAst;
+      if (editShares.gt(0)) {
+        newSharesAst = newSharesAst.add(editShares);
+      }
+      if (editShares.lt(0)) {
+        newSharesAst = position.shares
+          .add(editShares)
+          .mul(position.sharesAst)
+          .div(position.shares);
+      }
+      if (editBorrow.gt(0)) {
+        newSharesAst = newSharesAst.add(editBorrow);
+        newBorrowAst = newBorrowAst.add(editBorrow);
+      }
+      if (editBorrow.lt(0)) {
+        newBorrowAst = newBorrowAst.add(
+          editBorrow.mul(pool.data.index).div(ONE)
+        );
+      }
+      if (editShares.eq(position.shares.mul(-1))) {
+        newSharesAst = parseUnits("0");
+      }
+      newSharesUsd = newSharesAst.mul(pool.data.price).div(ASTONE);
+      newBorrowUsd = newBorrowAst.mul(pool.data.price).div(ASTONE);
+
+      if (newBorrowUsd.gt(0) && newSharesUsd.sub(newBorrowUsd).gt(0)) {
         updatedLeverage =
-          (position.borrowAst
+          newBorrowUsd
             .mul(1000)
-            .div(newSharesAst.sub(position.borrowAst))
-            .toNumber() +
-            1000) /
-          1000;
+            .div(newSharesUsd.sub(newBorrowUsd))
+            .toNumber() /
+            1000 +
+          1;
         if (updatedLeverage < 1) updatedLeverage = 1;
         if (leverage === 1) leverageOrCurrent = updatedLeverage;
       }
-      const newTargetBorrow = newSharesAst
-        .sub(position.borrowAst)
-        .mul(parseUnits(leverageOrCurrent.toFixed(4), 4).sub(10000))
-        .div(10000)
-        .mul(ONE)
-        .div(pool.data.index);
-      editBorrow = newTargetBorrow.sub(position.borrow);
-
-      if (tab == "withdraw") {
-        editShares = editShares.add(
-          editBorrow
-            .mul(-1)
-            .mul(pool.data.index)
-            .div(ONE)
-            .mul(position.shares)
-            .div(position.sharesAst)
-            .mul(101)
-            .div(100)
-        );
-        editShares = bnMin(position.shares, editShares);
-        editBorrow = bnMax(position.borrow.mul(-1), editBorrow);
-      }
-
-      if (
-        tab == "withdraw" &&
-        parsedAmount.eq(position.sharesAst.sub(position.borrowAst))
-      ) {
-        editShares = position.shares;
-        editBorrow = position.borrow.mul(-1);
-      }
-
-      newSharesUsd = bnMax(
-        parseUnits("0"),
-        position.sharesUsd
-          .add(parsedAmountUsd.mul(tab == "deposit" ? 1 : -1))
-          .add(
-            editBorrow.mul(pool.data.index).div(ONE).mul(adjustedPrice).div(ONE)
-          )
-      );
-      const actionBorrowUsd = editBorrow
-        .mul(pool.data.index)
-        .div(ONE)
-        .mul(pool.data.price)
-        .div(parseUnits("1", asset.decimals));
-      newBorrowUsd = bnMax(
-        parseUnits("0"),
-        position.borrowUsd.add(actionBorrowUsd)
-      );
-      if (tab == "withdraw" && editBorrow.eq(position.borrow)) {
-        newBorrowUsd = parseUnits("0");
-      }
     } else {
+      // Calculate the values to pass to `earn()` for a new "deposit"
+      editShares = parsedAmount;
+      editBorrow = parseUnits(amountBorrow || "0", asset.decimals);
       newSharesUsd = parsedAmount.add(editBorrow).mul(adjustedPrice).div(ONE);
       newBorrowUsd = editBorrow.mul(adjustedPrice).div(ONE);
     }
@@ -205,21 +202,19 @@ export default function FarmPosition() {
         .mul(ONE)
         .div(newSharesUsd.sub(newBorrowUsd))
         .add(ONE);
+      borrowApr = pool.data.rate.mul(YEAR).mul(newLeverage.sub(ONE)).div(ONE);
     }
 
     if (llamaPool) {
       newApy = parseUnits((llamaPool.apy / 100).toFixed(6), 18);
-      newApy = newApy
-        .mul(newLeverage)
-        .div(ONE)
-        .sub(pool.data.rate.mul(YEAR).mul(newLeverage.sub(ONE)).div(ONE));
+      newApy = newApy.mul(newLeverage).div(ONE).sub(borrowApr);
     }
   } catch (e) {
     console.error("calc", e);
   }
   const leverageCap = updatedLeverage;
-  const leverageMin = position && tab == "deposit" ? leverageCap : "1";
-  const leverageMax = position && tab == "withdraw" ? leverageCap : "10";
+  const leverageMin = position && action == "deposit" ? leverageCap : "1";
+  const leverageMax = position && action == "withdraw" ? leverageCap : "10";
   const assetAllowanceOk = !data
     ? false
     : parsedAmount.gt(0)
@@ -227,10 +222,7 @@ export default function FarmPosition() {
     : data.assetAllowance.gt(0);
 
   function cMouseMove(data) {
-    if (!data || !data.activePayload) {
-      return;
-    }
-
+    if (!data || !data.activePayload) return;
     chartPosRef.current.innerText = `$${formatNumber(
       parseFloat(data.activePayload[0].payload.pos) +
         parseFloat(data.activePayload[0].payload.bor)
@@ -371,35 +363,6 @@ export default function FarmPosition() {
     }
   });
 
-  function onMax() {
-    if (tab === "withdraw") {
-      if (position) {
-        setAmount(
-          formatUnits(
-            position.sharesAst.sub(position.borrowAst),
-            asset.decimals
-          )
-        );
-      }
-    } else {
-      setAmount(formatUnits(data.assetBalance, asset.decimals));
-    }
-  }
-
-  function onSet(percent) {
-    setLeverage(leverageMin);
-    if (tab === "withdraw") {
-      if (position) {
-        const max = position.sharesAst.sub(position.borrowAst);
-        setAmount(formatUnits(max.mul(percent).div(100), asset.decimals));
-      }
-    } else {
-      setAmount(
-        formatUnits(data.assetBalance.mul(percent).div(100), asset.decimals)
-      );
-    }
-  }
-
   function adjustLeverage(value) {
     value = parseFloat(value);
     if (Number.isNaN(value)) return;
@@ -457,23 +420,26 @@ export default function FarmPosition() {
         );
       }
 
-      if (
-        editShares.gt(0) &&
-        editBorrow.gt("-25000") &&
-        editBorrow.lt("25000")
-      ) {
-        editBorrow = parseUnits("0");
-      }
-
       setLoading(true);
       if (!position && !editBorrow.eq("0") && editBorrow.lt(data.borrowMin)) {
-        throw new Error("Borrow below minimum");
+        throw new Error(
+          `Borrow below minimum (${formatNumber(
+            data.borrowMin,
+            asset.decimals
+          )})`
+        );
       }
       if (!position && editBorrow.gt(data.borrowAvailable)) {
         throw new Error("Borrow larger than available for lending");
       }
-      if (newHealth.lt(parseUnits("1", 18))) {
+      if (newHealth.lt(ONE)) {
         throw new Error("Health needs to stay above 1");
+      }
+      if (
+        (!action || action === "deposit") &&
+        parsedAmount.gt(data.assetBalance)
+      ) {
+        throw new Error("Error not enough funds in wallet");
       }
 
       const actualSlippage = parseInt(parseFloat(slippage) * 100);
@@ -484,75 +450,58 @@ export default function FarmPosition() {
         throw new Error("Slippage must be less than or equal to 5");
       }
 
+      if (editBorrow.gt(0) && editShares.eq(0)) {
+        editShares = parseUnits("1", 0);
+      }
       const callData = actualSlippage
         ? ethers.utils.defaultAbiCoder.encode(["uint256"], [actualSlippage])
         : "0x";
       let call;
-      if (tab === "deposit") {
-        if (parsedAmount.gt(data.assetBalance)) {
-          throw new Error("Error not enough funds in wallet");
-        }
-        if (!position) {
-          call = contracts.positionManager.mint(
-            address,
-            pool.info.address,
-            strategy.index,
-            parsedAmount,
-            editBorrow,
-            callData
-          );
-          await runTransaction(
-            call,
-            "New position deposit is awaiting confirmation on chain...",
-            "Deposit completed.",
-            true,
-            networkName
-          );
-          const index =
-            (await contracts.investor.nextPosition()).toNumber() - 1;
-          router.push(`/farm/${strategy.slug}/${index}`);
-        } else {
-          if (parsedAmount.eq(0)) parsedAmount = parseUnits("1", 0);
-
-          call = contracts.positionManager.edit(
-            position.id,
-            parsedAmount,
-            editBorrow,
-            callData
-          );
-          await runTransaction(
-            call,
-            "Position update is awaiting confirmation on chain...",
-            "Position update completed.",
-            true,
-            networkName
-          );
-        }
-      } else {
-        if (!position) throw new Error("No deposit to withdraw");
-
-        call = contracts.positionManager.edit(
-          position.id,
-          editShares.mul(-1),
+      if (!position) {
+        call = contracts.positionManager.mint(
+          address,
+          pool.info.address,
+          strategy.index,
+          parsedAmount,
           editBorrow,
           callData
         );
         await runTransaction(
           call,
-          "Withdrawal is awaiting confirmation on chain...",
-          "Withdrawal completed.",
+          "New position deposit is awaiting confirmation on chain...",
+          "Deposit completed.",
           true,
           networkName
         );
+        const index = (await contracts.investor.nextPosition()).toNumber() - 1;
+        router.push(`/farm/${strategy.slug}/${index}`);
+      } else {
+        call = contracts.positionManager.edit(
+          position.id,
+          editShares,
+          editBorrow,
+          callData
+        );
+        await runTransaction(
+          call,
+          "Position update is awaiting confirmation on chain...",
+          "Position update completed.",
+          true,
+          networkName
+        );
+        if (editShares.eq(position.shares.mul(-1))) {
+          router.push(`/farm/${strategy.slug}`);
+        }
       }
+      setAction("");
       setAmount("");
       setTimeout(async () => {
-        updatePosUrl();
+        //updatePosUrl();
         fetchData();
         positionsRefetch();
       }, 2000);
       setTimeout(() => {
-        updatePosUrl();
+        //updatePosUrl();
         fetchData();
         positionsRefetch();
       }, 10000);
@@ -587,6 +536,154 @@ export default function FarmPosition() {
 
     return null;
   };
+
+  function renderActions() {
+    const actions = [
+      {
+        id: "borrow",
+        icon: "dollars-in",
+        name: "Borrow more",
+        description:
+          "Take out more leverage against your collateral if your health factor is good",
+      },
+      {
+        id: "repay",
+        icon: "dollars-out",
+        name: "Decrease debt",
+        description:
+          "Pay back a portion of borrowed funds to improve your position health",
+      },
+      {
+        id: "deposit",
+        icon: "dollars-bills",
+        name: "Add collateral",
+        description: "Deposit more collateral to improve your position health",
+      },
+      {
+        id: "withdraw",
+        icon: "dollars-wallet",
+        name: "Close position",
+        description:
+          "Withdraw collateral and yield, and pay back borrowed funds and fees",
+      },
+    ];
+    return (
+      <>
+        {actions.map((a) => (
+          <a
+            key={a.id}
+            className="position-action"
+            onClick={() => setAction(a.id)}
+          >
+            <span className="position-action-icon">
+              <Icon name={a.icon} />
+            </span>
+            <span className="position-action-info">
+              <span className="position-action-title">{a.name}</span>
+              <span className="position-action-desc">{a.description}</span>
+            </span>
+            <span className="position-action-arrow">
+              <Icon name="chevron-right" />
+            </span>
+          </a>
+        ))}
+      </>
+    );
+  }
+
+  function renderForm() {
+    switch (action) {
+      case "borrow":
+        return renderFormBorrow();
+      case "repay":
+        return renderFormRepay();
+      case "deposit":
+        return renderFormDeposit();
+      case "withdraw":
+        return renderFormWithdraw();
+      default:
+        return renderFormNew();
+    }
+  }
+
+  function renderFormNew() {
+    return (
+      <>
+        <div className="subtitle">Amount to deposit</div>
+        <InputAmount
+          amount={amount}
+          setAmount={setAmount}
+          max={data.assetBalance}
+          asset={asset}
+          buy
+        />
+        <div className="subtitle mt-6">Amount to borrow</div>
+        <InputAmount
+          amount={amountBorrow}
+          setAmount={setAmountBorrow}
+          max={data.borrowAvailable}
+          asset={asset}
+        />
+      </>
+    );
+  }
+
+  function renderFormBorrow() {
+    return (
+      <>
+        <div className="subtitle">Amount to borrow</div>
+        <InputAmount
+          amount={amount}
+          setAmount={setAmount}
+          max={data.borrowAvailable}
+          asset={asset}
+        />
+      </>
+    );
+  }
+
+  function renderFormRepay() {
+    return (
+      <>
+        <div className="subtitle">Amount to repay</div>
+        <InputAmount
+          amount={amount}
+          setAmount={setAmount}
+          max={position.borrowAst}
+          asset={asset}
+        />
+      </>
+    );
+  }
+
+  function renderFormDeposit() {
+    return (
+      <>
+        <div className="subtitle">Amount to deposit</div>
+        <InputAmount
+          amount={amount}
+          setAmount={setAmount}
+          max={data.assetBalance}
+          asset={asset}
+          buy
+        />
+      </>
+    );
+  }
+
+  function renderFormWithdraw() {
+    return (
+      <>
+        <div className="subtitle">Amount to withdraw</div>
+        <InputAmount
+          amount={amount}
+          setAmount={setAmount}
+          max={position.sharesAst.sub(position.borrowAst)}
+          asset={asset}
+        />
+      </>
+    );
+  }
 
   if (!data || !strategy || !pool || !asset) {
     return (
@@ -642,129 +739,6 @@ export default function FarmPosition() {
       <div className="grid-2" style={{ gridTemplateColumns: "2fr 1fr" }}>
         <div>
           <div>
-            <div className="title">Adjust position</div>
-            <div className="tabs mb-4">
-              <a
-                className={`tabs-tab ${tab === "deposit" ? " active" : ""}`}
-                onClick={() => setTab("deposit")}
-              >
-                Deposit
-              </a>
-              <a
-                className={`tabs-tab ${tab === "withdraw" ? " active" : ""}`}
-                onClick={() => setTab("withdraw")}
-              >
-                Withdraw
-              </a>
-            </div>
-            <div className="card mb-4">
-              {error ? (
-                <div className="error mb-2">
-                  {error}{" "}
-                  {error.includes("Green Horn NFT") ? (
-                    <a
-                      style={{ color: "white", opacity: "0.8" }}
-                      href="https://medium.com/@Rodeo_Finance/introducing-the-rodeo-bull-club-unlock-exclusive-access-to-rodeo-farms-perks-nfts-wl-and-more-5c4905ad3daa"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Link to guide
-                    </a>
-                  ) : null}
-                </div>
-              ) : null}
-              <div className="flex">
-                <div className="flex-1 mb-2">
-                  Available balance:{" "}
-                  {formatNumber(data.assetBalance, asset.decimals)}{" "}
-                  {asset.symbol}
-                </div>
-                <a
-                  href="https://app.1inch.io/#/42161/simple/swap/eth/usdc"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Purchase USDC <Icon name="external-link" small />
-                </a>
-              </div>
-              <div className="mb-2">
-                <Input
-                  value={amount}
-                  onInput={(e) => setAmount(e.target.value)}
-                  placeholder="0.00"
-                  img={assets[networkName][pool.info.asset]}
-                  onMax={onMax}
-                />
-              </div>
-              <div className="flex mb-6">
-                <button
-                  className="button button-primary button-link flex-1 mr-2"
-                  onClick={onSet.bind(null, 25)}
-                >
-                  25%
-                </button>
-                <button
-                  className="button button-primary button-link flex-1 mr-2"
-                  onClick={onSet.bind(null, 50)}
-                >
-                  50%
-                </button>
-                <button
-                  className="button button-primary button-link flex-1 mr-2"
-                  onClick={onSet.bind(null, 75)}
-                >
-                  75%
-                </button>
-                <button
-                  className="button button-primary button-link flex-1"
-                  onClick={onSet.bind(null, 100)}
-                >
-                  100%
-                </button>
-              </div>
-              <div className="mb-6">Leverage</div>
-              <div
-                className="grid-2"
-                style={{ gridTemplateColumns: "1fr 90px" }}
-              >
-                <div className="flex mb-4">
-                  <DiscreteSliders
-                    className="w-full"
-                    min={1}
-                    max={10}
-                    value={leverageOrCurrent}
-                    range={6}
-                    onInput={(value) => adjustLeverage(value)}
-                  />
-                </div>
-                <input
-                  className="input mb-2"
-                  type="number"
-                  style={{ width: 90, textAlign: "right" }}
-                  value={leverageOrCurrent}
-                  onInput={(e) => adjustLeverage(e.target.value)}
-                  placeholder="0.00"
-                  align="right"
-                />
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <button
-                className="button"
-                onClick={!assetAllowanceOk ? onApprove : onSubmit}
-                disabled={loading}
-              >
-                {loading
-                  ? "Loading..."
-                  : !assetAllowanceOk
-                  ? "Approve " + asset.symbol
-                  : position
-                  ? "Adjust position"
-                  : "Open position"}
-              </button>
-            </div>
-          </div>
-          <div>
             <div className="title">Position Information</div>
             <div className="card mb-8">
               <div className="">
@@ -778,7 +752,9 @@ export default function FarmPosition() {
                 <div className="position-row">
                   <div className="label-position">Debt value:</div>${" "}
                   {position ? formatNumber(position.borrowUsd) : "0.00"}
-                  {positionChanged ? " → " + formatNumber(newBorrowUsd) : null}
+                  {positionChanged
+                    ? " → $ " + formatNumber(newBorrowUsd)
+                    : null}
                 </div>
                 <div className="position-row">
                   <div className="label-position">Health:</div>
@@ -809,17 +785,62 @@ export default function FarmPosition() {
               </div>
             </div>
           </div>
+          <div>
+            <div className="title">{title}</div>
+            {position && !action ? (
+              renderActions()
+            ) : (
+              <div>
+                <div className="card mb-4">
+                  {error ? (
+                    <div className="error mb-2">
+                      {error}{" "}
+                      {error.includes("Green Horn NFT") ? (
+                        <a
+                          style={{ color: "white", opacity: "0.8" }}
+                          href="https://medium.com/@Rodeo_Finance/introducing-the-rodeo-bull-club-unlock-exclusive-access-to-rodeo-farms-perks-nfts-wl-and-more-5c4905ad3daa"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Link to guide
+                        </a>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  {renderForm()}
+                </div>
+                <div className="flex">
+                  <button
+                    className="button button-link button-primary"
+                    onClick={() => setAction("")}
+                  >
+                    Back
+                  </button>
+                  <div className="flex-1"></div>
+                  <button
+                    className="button"
+                    onClick={!assetAllowanceOk ? onApprove : onSubmit}
+                    disabled={loading}
+                  >
+                    {loading
+                      ? "Loading..."
+                      : !assetAllowanceOk
+                      ? "Approve " + asset.symbol
+                      : position
+                      ? "Adjust position"
+                      : "Open position"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         <div>
           <div className="title">Farm Information</div>
           <div className="card mb-4">
             <div className="farm-row mb-6">
-              <div className="label-position">APY</div>
-              {formatNumber(newApy, 16)}%
-            </div>
-            <div className="farm-row mb-6">
-              <div className="label-position">Daily</div>
-              {formatNumber(newApy.div(365), 16, 4)}%
+              <div className="label-position">Protocol</div>
+              {strategy.protocol}
             </div>
             <div className="farm-row mb-6">
               <div className="label-position">TVL</div>
@@ -859,30 +880,113 @@ export default function FarmPosition() {
               </div>
             </div>
             <div className="farm-row mb-6">
-              <div className="label-position">Chain</div>
-              <div className="capitalize">{networkName}</div>
+              <div className="label-position">Farm APR</div>
+              {formatNumber(newApy.add(borrowApr), 16)}%
             </div>
             <div className="farm-row mb-6">
-              <div className="label-position">Protocol</div>
-              {strategy.protocol}
+              <div className="label-position">Borrow APR</div>
+              {formatNumber(borrowApr.mul(-1), 16, 1)}%
             </div>
             <div className="farm-row mb-6">
-              <div className="label-position">Borrow minimum:</div>
-              {formatNumber(data?.borrowMin || 0, asset.decimals)}{" "}
-              {asset.symbol}
+              <div className="label-position">Net APR</div>
+              {formatNumber(newApy, 16)}%
             </div>
             <div className="farm-row mb-6">
-              <div className="label-position">Borrow APR:</div>
-              {formatNumber(pool.data.rate.mul(YEAR), 16, 1)}%
-            </div>
-            <div className="farm-row mb-6">
-              <div className="label-position">Borrow available:</div>
-              {formatNumber(data?.borrowAvailable || 0, asset.decimals)}{" "}
-              {asset.symbol}
+              <div className="label-position">Daily</div>
+              {formatNumber(newApy.div(365), 16, 4)}%
             </div>
           </div>
         </div>
       </div>
     </Layout>
+  );
+}
+
+function InputAmount({ amount, setAmount, max, asset, decimals, buy }) {
+  decimals = decimals || asset.decimals;
+  function onSet(percent) {
+    setAmount(formatUnits(max.mul(percent).div(100), decimals));
+  }
+  return (
+    <div>
+      <div className="flex">
+        <div className="flex-1 mb-2">
+          Available: {formatNumber(max, decimals)} {asset.symbol}
+        </div>
+        {buy ? (
+          <a
+            href={`https://app.1inch.io/#/42161/simple/swap/eth/${asset.symbol.toLowerCase()}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Purchase {asset.symbol} <Icon name="external-link" small />
+          </a>
+        ) : null}
+      </div>
+      <div className="mb-2">
+        <Input
+          value={amount}
+          onInput={(e) => setAmount(e.target.value)}
+          placeholder="0.00"
+          icon={asset.icon}
+          onMax={onSet.bind(null, 100)}
+        />
+      </div>
+      <div className="flex">
+        <button
+          className="button button-primary button-link flex-1 mr-2"
+          onClick={onSet.bind(null, 25)}
+        >
+          25%
+        </button>
+        <button
+          className="button button-primary button-link flex-1 mr-2"
+          onClick={onSet.bind(null, 50)}
+        >
+          50%
+        </button>
+        <button
+          className="button button-primary button-link flex-1 mr-2"
+          onClick={onSet.bind(null, 75)}
+        >
+          75%
+        </button>
+        <button
+          className="button button-primary button-link flex-1"
+          onClick={onSet.bind(null, 100)}
+        >
+          100%
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function InputLeverage() {
+  return (
+    <div>
+      <div className="mb-6">Leverage</div>
+      <div className="grid-2" style={{ gridTemplateColumns: "1fr 90px" }}>
+        <div className="flex mb-4">
+          <DiscreteSliders
+            className="w-full"
+            min={1}
+            max={10}
+            value={leverageOrCurrent}
+            range={6}
+            onInput={(value) => adjustLeverage(value)}
+          />
+        </div>
+        <input
+          className="input mb-2"
+          type="number"
+          style={{ width: 90, textAlign: "right" }}
+          value={leverageOrCurrent}
+          onInput={(e) => adjustLeverage(e.target.value)}
+          placeholder="0.00"
+          align="right"
+        />
+      </div>
+    </div>
   );
 }

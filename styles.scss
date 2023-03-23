@@ -791,6 +791,47 @@ input[type=range] {
   top: 16px;
 }
 
+.position-action {
+  display: flex;
+  margin-bottom: 24px;
+  overflow: hidden;
+  border-radius: var(--border-radius);
+  background: var(--background2);
+  align-items: center;
+  box-shadow: var(--box-shadow);
+}
+.position-action:hover {
+  opacity: 0.8;
+  text-decoration: none;
+  position: relative;
+  cursor: pointer;
+}
+.position-action-icon {
+  background: var(--primary-gradient);
+  padding: 24px;
+  height: 110px;
+  display: flex;
+  align-items: center;
+}
+.position-action-info {
+  flex: 1;
+  padding: 16px;
+}
+.position-action-title {
+  display: block;
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--foreground);
+}
+.position-action-desc {
+  opacity: 0.6;
+  color: var(--foreground);
+}
+.position-action-arrow {
+  padding: 24px;
+}
+
+
 .Toastify__toast .Toastify__toast-body {
   font-family: $font;
 }

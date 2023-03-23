@@ -8,16 +8,26 @@ export default function PositionTrack({
   className,
 }) {
   const trackRef = useRef();
-  const clamped = Math.min(max * 0.95, Math.max(min * 1.05, value));
+  let clamped = Math.min(max * 0.95, Math.max(min * 1.05, value));
+  clamped = Math.log(clamped);
+  min = Math.log(min);
+  max = Math.log(max);
+
+  if (value === "1.00") {
+    clamped = max * 0.95;
+    value = "∞";
+  }
+
   const p = trackRef.current
-    ? (trackRef.current.offsetWidth / (max - min)) * (clamped - min)
+    ? (trackRef.current.offsetWidth * (clamped - min)) / (max - min)
     : 0;
+  console.log(trackRef?.current?.offsetWidth, p, clamped, min, max, value);
   return (
     <div
       ref={trackRef}
       className={`position-track flex flex-column ${className}`}
     >
-      {value !== "1.00" && value !== "0.00" ? (
+      {value !== "0.00" ? (
         <div className="position-track__tooltip" style={{ left: `${p}px` }}>
           {value}
         </div>
