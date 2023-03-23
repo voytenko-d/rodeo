@@ -291,7 +291,7 @@ task("events", 15, async () => {
           time: new Date(),
           block: logs[i].blockNumber,
           earn: values.amt,
-          tvl: values.amt,
+          tvl: values.val,
         });
       }
     }
