@@ -805,7 +805,6 @@ export function getContracts(signer, networkName) {
         "error OverMaxBorrowFactor()",
         "function nextPosition() view returns (uint)",
         "function positions(uint) view returns (address, address, address, uint, uint, uint)",
-        "function strategies(uint) view returns (address)",
       ],
       signer
     ),
@@ -855,14 +854,6 @@ export function getContracts(signer, networkName) {
           "function borrowMin() view returns (uint)",
           "function mint(uint, address)",
           "function burn(uint, address)",
-        ],
-        signer
-      ),
-    strategy: (address) =>
-      new ethers.Contract(
-        address,
-          [
-            "function currentPrice() view returns (uint)",
         ],
         signer
       ),
