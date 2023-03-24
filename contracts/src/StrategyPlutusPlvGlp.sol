@@ -153,8 +153,4 @@ contract StrategyPlutusPlvGlp is Strategy {
         (uint96 tma,) = plsFarm.userInfo(address(this));
         return uint256(tma);
     }
-
-    function currentPrice() public view returns (uint256) {
-        return (glpManager.getAumInUsdg(false) * 1e18) / glp.totalSupply();
-    }
 }

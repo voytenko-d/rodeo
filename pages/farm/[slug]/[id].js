@@ -245,7 +245,6 @@ export default function FarmPosition() {
     if (!contracts || !address || !pool) return;
     const poolContract = contracts.pool(pool.info.address);
     const assetContract = contracts.asset(pool.info.asset);
-    const strategies = await fetchStrategiesData();
     const data = {
       borrowRate: pool.data.rate,
       borrowMin: await poolContract.borrowMin(),
@@ -255,7 +254,6 @@ export default function FarmPosition() {
         address,
         contracts.positionManager.address
       ),
-      strategies,
     };
     setData(data);
   }
@@ -286,18 +284,6 @@ export default function FarmPosition() {
         };
       })
     );
-  }
-
-  async function fetchStrategiesData() {
-    const index = (await contracts.investor.nextPosition()).toNumber() - 1;
-    const ids = Array.from([...Array(index).keys()]);
-    return await Promise.all(ids.map(async (i) => {
-      const address = await contracts.investor.strategies(i);
-      return {
-        address,
-        price: (await contracts.strategy(address).currentPrice()) | undefined,
-      }
-    }));
   }
 
   async function fetchEvents() {
@@ -909,15 +895,15 @@ export default function FarmPosition() {
               <div className="label-position">Daily</div>
               {formatNumber(newApy.div(365), 16, 4)}%
             </div>
-            {['PlutusDAO'].some((p) => p === strategy.protocol) ? (
+            {strategy.name === 'plvGLP' ? (
               <>
                 <div className="farm-row mb-6">
                   <div className="label-position">GLP Price</div>
-                  {formatNumber(data.strategies.filter((s) => s.address === strategy.address).price, 18)}USD
+                  {formatNumber(positions.price, 18)}USD
                 </div>
                 <div className="farm-row mb-6">
                   <div className="label-position">GLP Liquidation Price</div>
-                  {formatNumber(data.strategies.filter((s) => s.address === strategy.address).price, 18) * formatNumber(newLiquidationUsd, 18, 1)}USD
+                  {formatNumber(positions.price, 18) * formatNumber(newLiquidationPercent, 16, 0)}USD
                 </div>
               </>
             ): null}

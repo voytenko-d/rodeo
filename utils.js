@@ -1134,8 +1134,6 @@ export function usePositions() {
         const priceAdjusted = values[8]
           .mul(ONE)
           .div(parseUnits("1", asset.decimals));
-        const strategyContract = contracts.strategy(strategy.address);
-        const pricePosition = await strategyContract.currentPrice();
 
         const p = {
           id: id,
@@ -1155,7 +1153,6 @@ export function usePositions() {
           amountUsd: values[7].mul(priceAdjusted).div(ONE),
           health: values[6],
           assetPrice: values[8],
-          strategyInfo: {...strategy, pricePosition},
           assetInfo: asset,
           poolInfo: pool,
           /*
@@ -1183,6 +1180,20 @@ export function usePositions() {
               .div(p.sharesUsd.sub(p.borrowUsd))
               .add(ONE);
           }
+        }
+
+        if (strategy.name === 'plvGLP') {
+          const contract = (address) => new ethers.Contract(
+              address,
+              [
+                "function getAumInUsdg(bool) external view returns (uint256)",
+                "function totalSupply() external view returns (uint256)",
+              ],
+              provider
+          );
+          const aumInUsdg = await contract('0x3963ffc9dff443c2a94f21b129d429891e32ec18').getAumInUsdg(false);
+          const totalSupply = await contract('0x4277f8f2c384827b5273592ff7cebd9f2c1ac258').totalSupply();
+          p.price = (aumInUsdg * 1e18) / totalSupply;
         }
 
         return p;
