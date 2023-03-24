@@ -24,7 +24,7 @@ abstract contract Strategy is Util {
     event FileAddress(bytes32 indexed what, address data);
     event Mint(address indexed ast, uint256 amt, uint256 sha);
     event Burn(address indexed ast, uint256 amt, uint256 sha);
-    event Earn(uint256 val, uint256 amt);
+    event Earn(uint256 tvl, uint256 profit);
 
     constructor(address _strategyHelper) {
         strategyHelper = IStrategyHelper(_strategyHelper);
