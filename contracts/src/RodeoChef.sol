@@ -46,8 +46,8 @@ contract Chef is Ownable, Pausable, Multicall, IERC677Receiver {
     uint256 public rewardPerBlock = 0;
     uint256 private constant ACC_PRECISION = 1e12;
 
-    event Deposit(address indexed user, uint256 indexed pid, uint256 amount, address indexed to);
-    event Withdraw(address indexed user, uint256 indexed pid, uint256 amount, address indexed to);
+    event Deposit(address indexed user, uint256 indexed pid, uint256 amount, address indexed to, bool isLPToken);
+    event Withdraw(address indexed user, uint256 indexed pid, uint256 amount, address indexed to, bool isUnstake);
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount, address indexed to);
     event Harvest(address indexed user, uint256 indexed pid, uint256 amount);
     event LogPoolAddition(uint256 indexed pid, uint256 allocPoint, IERC20 indexed lpToken);
@@ -155,7 +155,7 @@ contract Chef is Ownable, Pausable, Multicall, IERC677Receiver {
     /// @param pid The index of the pool. See `poolInfo`.
     /// @param amount LP token amount to deposit.
     /// @param to The receiver of `amount` deposit benefit.
-    /// @param isLPToken Status if deposit LP token or not
+    /// @param isLPToken State if deposit LP token or not
     function deposit(uint256 pid, uint256 amount, address to, bool isLPToken) public whenNotPaused() {
         PoolInfo memory pool = updatePool(pid);
         UserInfo storage user = userInfo[pid][to];
@@ -177,14 +177,15 @@ contract Chef is Ownable, Pausable, Multicall, IERC677Receiver {
         user.amount = user.amount + amount;
         user.rewardDebt = user.rewardDebt + int256((amount * pool.accRewardPerShare) / ACC_PRECISION);
 
-        emit Deposit(msg.sender, pid, amount, to);
+        emit Deposit(msg.sender, pid, amount, to, isLPToken);
     }
 
     /// @notice Withdraw LP tokens from Staking.
     /// @param pid The index of the pool. See `poolInfo`.
     /// @param amount LP token amount to withdraw.
     /// @param to Receiver of the LP tokens.
-    function withdraw(uint256 pid, uint256 amount, address to) public whenNotPaused() {
+    /// @param isUnstake State if unstake pool token
+    function withdraw(uint256 pid, uint256 amount, address to, bool isUnstake) public whenNotPaused() {
         PoolInfo memory pool = updatePool(pid);
         UserInfo storage user = userInfo[pid][msg.sender];
 
@@ -193,9 +194,14 @@ contract Chef is Ownable, Pausable, Multicall, IERC677Receiver {
         user.amount = user.amount - amount;
 
         // Interactions
-        lpToken[pid].safeTransfer(to, amount);
+        if (isUnstake) {
+            IPool liquidityPool = IPool(address(lpToken[pid]));
+            liquidityPool.burn(amount, to);
+        } else {
+            lpToken[pid].safeTransfer(to, amount);
+        }
 
-        emit Withdraw(msg.sender, pid, amount, to);
+        emit Withdraw(msg.sender, pid, amount, to, isUnstake);
     }
 
     /// @notice Harvest proceeds for transaction sender to `to`.
@@ -232,7 +238,8 @@ contract Chef is Ownable, Pausable, Multicall, IERC677Receiver {
     /// @param pid The index of the pool. See `poolInfo`.
     /// @param amount LP token amount to withdraw.
     /// @param to Receiver of the LP tokens and token rewards.
-    function withdrawAndHarvest(uint256 pid, uint256 amount, address to) public {
+    /// @param isUnstake State if unstake pool token
+    function withdrawAndHarvest(uint256 pid, uint256 amount, address to, bool isUnstake) public {
         PoolInfo memory pool = updatePool(pid);
         UserInfo storage user = userInfo[pid][msg.sender];
         int256 accumulatedReward = int256((user.amount * pool.accRewardPerShare) / ACC_PRECISION);
@@ -243,10 +250,16 @@ contract Chef is Ownable, Pausable, Multicall, IERC677Receiver {
         user.amount = user.amount - amount;
         
         // Interactions
+        if (isUnstake) {
+            IPool liquidityPool = IPool(address(lpToken[pid]));
+            liquidityPool.burn(amount, to);
+        } else {
+            lpToken[pid].safeTransfer(to, amount);
+        }
+        // Interactions
         rewardToken.safeTransferFrom(rewardOwner, to, _pendingReward);
-        lpToken[pid].safeTransfer(to, amount);
-
-        emit Withdraw(msg.sender, pid, amount, to);
+        
+        emit Withdraw(msg.sender, pid, amount, to, isUnstake);
         emit Harvest(msg.sender, pid, _pendingReward);
     }
 
@@ -277,7 +290,7 @@ contract Chef is Ownable, Pausable, Multicall, IERC677Receiver {
             user.amount = user.amount + amount;
             user.rewardDebt = user.rewardDebt + int256((amount * pool.accRewardPerShare) / ACC_PRECISION);
 
-            emit Deposit(msg.sender, pid, amount, to);
+            emit Deposit(msg.sender, pid, amount, to, false);
         }
     }
 }
