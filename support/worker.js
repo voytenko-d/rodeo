@@ -311,7 +311,7 @@ task("strategies", 8 * 60, async () => {
   for (let s of strategies[config.chain]) {
     console.log("earning", s.address);
     try {
-      await call(s.address, "+earn--");
+      await (await call(s.address, "+earn--")).wait();
     } catch (e) {
       console.log("error earn", e);
     }
@@ -376,7 +376,7 @@ task("oracles", 5, async () => {
     if (Date.now() / 1000 > ts + 1800) {
       try {
         console.log("oracle", o);
-        await call(o, "+update--");
+        await (await call(o, "+update--")).wait();
       } catch (e) {
         console.log(
           "error oracle",
