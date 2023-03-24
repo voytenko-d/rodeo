@@ -261,35 +261,48 @@ task("events", 15, async () => {
       });
     }
 
+    currentBlock += batchSize;
+  }
+});
+
+task("strategies_profits", 2 * 60, async () => {
+  const batchSize = 1000000;
+  const latestBlock = await provider.getBlockNumber();
+  const lastEvent = (
+    await sql(`select block from strategies_profits order by time desc`)
+  )[0];
+  let currentBlock = lastEvent
+    ? parseInt(lastEvent.block) + 1
+    : defaultBlock[config.chain];
+
+  while (currentBlock < latestBlock) {
     for (let s of strategies[config.chain]) {
-      const strategyContract = new ethers.Contract(
-          s.address,
-          [
-            "event Earn(uint256 tvl, uint256 profit)",
-          ]
-      );
+      const strategyContract = new ethers.Contract(s.address, [
+        "event Earn(uint256 tvl, uint256 profit)",
+      ]);
       const logs = await provider.getLogs({
         address: s.address,
-        topics: [
-          [
-            strategyContract.filters.Earn().topics[0],
-          ],
-        ],
+        topics: [[strategyContract.filters.Earn().topics[0]]],
         fromBlock: currentBlock,
         toBlock: currentBlock + batchSize,
       });
-      const parsedLogs = logs.map((l) => strategyContract.interface.parseLog(l));
+      const parsedLogs = logs.map((l) =>
+        strategyContract.interface.parseLog(l)
+      );
 
       for (let i in parsedLogs) {
         const l = parsedLogs[i];
+        if (l.args.profit.eq(0)) continue;
+        const block = await provider.getBlock(logs[i].blockNumber);
         await sqlInsert("strategies_profits", {
           block: logs[i].blockNumber,
-          earn: l.args.profit,
-          tvl: l.args.tvl,
+          time: new Date(block.timestamp * 1000),
+          strategy: s.address,
+          earn: l.args.profit.toString(),
+          tvl: l.args.tvl.toString(),
         });
       }
     }
-
     currentBlock += batchSize;
   }
 });
@@ -298,7 +311,7 @@ task("strategies", 8 * 60, async () => {
   for (let s of strategies[config.chain]) {
     console.log("earning", s.address);
     try {
-      await call(s.address, "+earn--");
+      await (await call(s.address, "+earn--")).wait();
     } catch (e) {
       console.log("error earn", e);
     }
@@ -359,12 +372,18 @@ task("liquidations", 5, async () => {
 task("oracles", 5, async () => {
   for (let o of oracles) {
     const ts = await call(o, "lastTimestamp--");
+    console.log("oracle", o, ts, Date.now() / 1000);
     if (Date.now() / 1000 > ts + 1800) {
       try {
         console.log("oracle", o);
-        await call(o, "+update--");
+        await (await call(o, "+update--")).wait();
       } catch (e) {
-        console.log("error oracle", o, e.error.data.message, e.error.data.data);
+        console.log(
+          "error oracle",
+          o,
+          e.error?.data?.message || e.message || String(e),
+          e.error?.data?.data
+        );
       }
     }
   }
