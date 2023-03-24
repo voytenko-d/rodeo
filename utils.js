@@ -805,6 +805,7 @@ export function getContracts(signer, networkName) {
         "error OverMaxBorrowFactor()",
         "function nextPosition() view returns (uint)",
         "function positions(uint) view returns (address, address, address, uint, uint, uint)",
+        "function strategies(uint) view returns (address)",
       ],
       signer
     ),
@@ -854,6 +855,14 @@ export function getContracts(signer, networkName) {
           "function borrowMin() view returns (uint)",
           "function mint(uint, address)",
           "function burn(uint, address)",
+        ],
+        signer
+      ),
+    strategy: (address) =>
+      new ethers.Contract(
+        address,
+          [
+            "function currentPrice() view returns (uint)",
         ],
         signer
       ),
@@ -1125,6 +1134,8 @@ export function usePositions() {
         const priceAdjusted = values[8]
           .mul(ONE)
           .div(parseUnits("1", asset.decimals));
+        const strategyContract = contracts.strategy(strategy.address);
+        const pricePosition = await strategyContract.currentPrice();
 
         const p = {
           id: id,
@@ -1144,7 +1155,7 @@ export function usePositions() {
           amountUsd: values[7].mul(priceAdjusted).div(ONE),
           health: values[6],
           assetPrice: values[8],
-          strategyInfo: strategy,
+          strategyInfo: {...strategy, pricePosition},
           assetInfo: asset,
           poolInfo: pool,
           /*
