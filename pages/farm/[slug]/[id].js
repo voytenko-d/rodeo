@@ -432,6 +432,9 @@ export default function FarmPosition() {
       if (!position && editBorrow.gt(data.borrowAvailable)) {
         throw new Error("Borrow larger than available for lending");
       }
+      if (newLeverage.gt(5)) {
+        throw new Error("Maximum leverage is 5x, reduce borrowed amount");
+      }
       if (newHealth.lt(ONE)) {
         throw new Error("Health needs to stay above 1");
       }
@@ -607,6 +610,14 @@ export default function FarmPosition() {
   }
 
   function renderFormNew() {
+    function setLeverage(value) {
+      setAmountBorrow(
+        formatNumber(
+          parsedAmount.mul(parseUnits(value, 18).sub(ONE)).div(ONE),
+          asset.decimals
+        ).replaceAll(",", "")
+      );
+    }
     return (
       <>
         <div className="subtitle">Amount to deposit</div>
@@ -624,11 +635,30 @@ export default function FarmPosition() {
           max={data.borrowAvailable}
           asset={asset}
         />
+        <div className="subtitle mt-6">Leverage</div>
+        <InputLeverage
+          value={formatNumber(newLeverage)}
+          setValue={setLeverage}
+        />
       </>
     );
   }
 
   function renderFormBorrow() {
+    function setLeverage(value) {
+      let amount = position.sharesAst
+        .sub(position.borrowAst)
+        .mul(parseUnits(value, 18).sub(ONE))
+        .div(ONE)
+        .sub(position.borrowAst);
+      amount = bnMax(parseUnits("0"), amount);
+      console.log(
+        formatNumber(amount, 6),
+        formatNumber(position.sharesAst, 6),
+        formatNumber(position.borrowAst, 6)
+      );
+      setAmount(formatNumber(amount, asset.decimals).replaceAll(",", ""));
+    }
     return (
       <>
         <div className="subtitle">Amount to borrow</div>
@@ -638,11 +668,26 @@ export default function FarmPosition() {
           max={data.borrowAvailable}
           asset={asset}
         />
+        <div className="subtitle mt-6">Leverage</div>
+        <InputLeverage
+          value={formatNumber(newLeverage)}
+          setValue={setLeverage}
+        />
       </>
     );
   }
 
   function renderFormRepay() {
+    function setLeverage(value) {
+      let amount = position.borrowAst.sub(
+        position.sharesAst
+          .sub(position.borrowAst)
+          .mul(parseUnits(value, 18).sub(ONE))
+          .div(ONE)
+      );
+      amount = bnMax(parseUnits("0"), amount);
+      setAmount(formatNumber(amount, asset.decimals).replaceAll(",", ""));
+    }
     return (
       <>
         <div className="subtitle">Amount to repay</div>
@@ -651,6 +696,11 @@ export default function FarmPosition() {
           setAmount={setAmount}
           max={position.borrowAst}
           asset={asset}
+        />
+        <div className="subtitle mt-6">Leverage</div>
+        <InputLeverage
+          value={formatNumber(newLeverage)}
+          setValue={setLeverage}
         />
       </>
     );
@@ -962,27 +1012,26 @@ function InputAmount({ amount, setAmount, max, asset, decimals, buy }) {
   );
 }
 
-function InputLeverage() {
+function InputLeverage({ value, setValue }) {
   return (
     <div>
-      <div className="mb-6">Leverage</div>
       <div className="grid-2" style={{ gridTemplateColumns: "1fr 90px" }}>
         <div className="flex mb-4">
           <DiscreteSliders
             className="w-full"
             min={1}
-            max={10}
-            value={leverageOrCurrent}
-            range={6}
-            onInput={(value) => adjustLeverage(value)}
+            max={5}
+            value={value}
+            range={5}
+            onInput={setValue}
           />
         </div>
         <input
           className="input mb-2"
           type="number"
           style={{ width: 90, textAlign: "right" }}
-          value={leverageOrCurrent}
-          onInput={(e) => adjustLeverage(e.target.value)}
+          value={value}
+          onInput={(e) => setValue(e.target.value)}
           placeholder="0.00"
           align="right"
         />
