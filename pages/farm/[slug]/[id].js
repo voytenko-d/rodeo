@@ -432,9 +432,6 @@ export default function FarmPosition() {
       if (!position && editBorrow.gt(data.borrowAvailable)) {
         throw new Error("Borrow larger than available for lending");
       }
-      if (newLeverage.gt(5)) {
-        throw new Error("Maximum leverage is 5x, reduce borrowed amount");
-      }
       if (newHealth.lt(ONE)) {
         throw new Error("Health needs to stay above 1");
       }
@@ -1020,9 +1017,9 @@ function InputLeverage({ value, setValue }) {
           <DiscreteSliders
             className="w-full"
             min={1}
-            max={5}
+            max={10}
             value={value}
-            range={5}
+            range={10}
             onInput={setValue}
           />
         </div>
