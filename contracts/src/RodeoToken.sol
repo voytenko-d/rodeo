@@ -24,4 +24,16 @@ contract RodeoToken is ERC20 {
         }
         _mint(_owner, _initialSupply - whiteListTotalAmt);
     }
+
+    function mint() public onlyOwner {
+        require(block.timestamp >= lastMintTime + 1 weeks, "Can only mint once per week");
+        
+        uint256 amount = WEEKLY_SUPPLY;
+        if (totalSupply() + amount > MAX_SUPPLY) {
+            amount = MAX_SUPPLY - totalSupply();
+        }
+
+        _mint(owner(), amount);
+        lastMintTime = block.timestamp;
+    }
 }
