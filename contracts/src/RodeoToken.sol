@@ -9,6 +9,13 @@ contract RodeoToken is ERC20 {
         uint256 amt;
     }
 
+    uint256 public weeklySupply; // percentage value
+    address public mintAddr;
+
+    event Mint(address indexed dst, uint256 amt);
+    event SetWeeklySupply(address indexed owner, uint256 amt);
+    event SetMintAddr(address indexed owner, address newMintAddr);
+
     constructor(
         string memory _name,
         string memory _symbol,
@@ -25,15 +32,24 @@ contract RodeoToken is ERC20 {
         _mint(_owner, _initialSupply - whiteListTotalAmt);
     }
 
-    function mint() public onlyOwner {
+    function mint() external {
+        require(mintAddr != address(0), "!undefined");
         require(block.timestamp >= lastMintTime + 1 weeks, "Can only mint once per week");
         
-        uint256 amount = WEEKLY_SUPPLY;
-        if (totalSupply() + amount > MAX_SUPPLY) {
-            amount = MAX_SUPPLY - totalSupply();
-        }
+        uint256 amount = totalSupply() * weeklySupply / 100;
 
-        _mint(owner(), amount);
+        _mint(mintAddr, amount);
         lastMintTime = block.timestamp;
+        emit Mint(mintAddr, amount);
+    }
+
+    function setWeeklySupply(uint256 _weeklySupply) external onlyOwner {
+        weeklySupply = _weeklySupply;
+        emit SetWeeklySupply(owner(), _weeklySupply);
+    }
+
+    function setMintAddr(address _mintAddr) external onlyOwner {
+        mintAddr = _mintAddr;
+        emit SetMintAddr(owner(), _mintAddr);
     }
 }
