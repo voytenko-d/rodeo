@@ -68,7 +68,7 @@ contract LiquidityMining is Util {
         emit PoolSet(_pid, _allocPoint);
     }
 
-    function removeUser(uint256 pid, address usr, address to) external auth {
+    function removeUser(uint256 pid, address usr, address to) public auth {
         UserInfo storage info = userInfo[pid][usr];
         _harvest(usr, pid, to);
         uint256 amt = info.amount;
@@ -126,10 +126,10 @@ contract LiquidityMining is Util {
 
     function depositAndWrap(uint256 pid, uint256 amount, address to, uint256 lock) public live {
         IPool pool = IPool(address(token[pid]));
-        uint256 bef = pool.balanceOf(address(this));
+        uint256 bef = IERC20(address(pool)).balanceOf(address(this));
         IERC20(pool.asset()).transferFrom(msg.sender, address(this), amount);
         pool.mint(amount, address(this));
-        uint256 aft = pool.balanceOf(address(this));
+        uint256 aft = IERC20(address(pool)).balanceOf(address(this));
         _deposit(msg.sender, pid, aft - bef, to, lock);
     }
 
@@ -176,7 +176,6 @@ contract LiquidityMining is Util {
         }
         emit Harvest(usr, pid, _pendingReward);
     }
-
     
     function emergencyWithdraw(uint256 pid, address to) public {
         UserInfo storage user = userInfo[pid][msg.sender];
@@ -185,11 +184,5 @@ contract LiquidityMining is Util {
         user.rewardDebt = 0;
         token[pid].transfer(to, amount);
         emit Withdraw(msg.sender, pid, amount, to);
-    }
-
-    function wrapInternal(uint256 pid, uint256 amount, address wrapper) internal returns (uint256 wrappedAmount) {
-    }
-
-    function unwrapInternal(uint256 pid, uint256 amount, address to) internal {
     }
 }

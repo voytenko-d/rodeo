@@ -74,7 +74,11 @@ contract DeploySingle {
 
         vm.startBroadcast();
 
-        multisig.add(usdc, 0, abi.encodeWithSignature("transfer(address,uint256)", 0x2AeDb0E9A6BB2571CD9651D3297f83e5C9379480, 1116493829));
+        multisig.add(
+            usdc,
+            0,
+            abi.encodeWithSignature("transfer(address,uint256)", 0x2AeDb0E9A6BB2571CD9651D3297f83e5C9379480, 1116493829)
+        );
 
         //multisig.add(0x5859731D7b7e413A958eA1cDb9020C611b016395, 0, abi.encodeWithSignature("call(address,uint256,bytes)", 0x2F43c6475f1ecBD051cE486A9f3Ccc4b03F3d713, 0, abi.encodeWithSignature("redeemStable(uint256)", 1679529600)));
         //multisig.add(0x5859731D7b7e413A958eA1cDb9020C611b016395, 0, abi.encodeWithSignature("pull(address)", usdc));

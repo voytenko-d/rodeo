@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import "./IERC20.sol";
-
-interface IPool is IERC20 {
+interface IPool {
     function paused() external view returns (bool);
     function asset() external view returns (address);
     function oracle() external view returns (address);

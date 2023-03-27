@@ -17,7 +17,7 @@ contract LiquidityMiningTest is Test {
         usdc.approve(address(usdcPool), 100e6);
         usdcPool.mint(100e6, address(this));
         usdcPool.approve(address(c), 60e6);
-        vm.warp(block.timestamp+3600);
+        vm.warp(block.timestamp + 3600);
     }
 
     function testInfo() public {
@@ -56,9 +56,9 @@ contract LiquidityMiningTest is Test {
         (uint256 amount, int256 rewardDebt,) = c.userInfo(0, address(this));
         assertEq(amount, 50e6);
         assertEq(rewardDebt, 25e18);
-        vm.warp(block.timestamp+3600);
+        vm.warp(block.timestamp + 3600);
         c.deposit(0, 10e6, address(this), 0);
-        (amount, rewardDebt, ) = c.userInfo(0, address(this));
+        (amount, rewardDebt,) = c.userInfo(0, address(this));
         assertEq(amount, 60e6);
         assertEq(rewardDebt, 34166666666666666666);
     }
@@ -70,7 +70,7 @@ contract LiquidityMiningTest is Test {
         (uint256 amount, int256 rewardDebt,) = c.userInfo(0, address(this));
         assertEq(amount, 6e6);
         assertEq(rewardDebt, 15e18);
-        assertEq(usdcPool.balanceOf(address(this))-before, 4e6);
+        assertEq(usdcPool.balanceOf(address(this)) - before, 4e6);
         c.withdraw(0, 1e6, address(this));
         vm.expectRevert();
         c.withdraw(0, 10e6, address(this));
@@ -83,14 +83,14 @@ contract LiquidityMiningTest is Test {
         (uint256 amount, int256 rewardDebt,) = c.userInfo(0, address(this));
         assertEq(amount, 0);
         assertEq(rewardDebt, 0);
-        assertEq(usdcPool.balanceOf(address(this))-before, 10e6);
+        assertEq(usdcPool.balanceOf(address(this)) - before, 10e6);
     }
 
     function testHarvest() public {
         c.file("rewardToken", address(weth));
         weth.transfer(address(c), 100e18);
         c.deposit(0, 50e6, address(this), 0);
-        vm.warp(block.timestamp+3600);
+        vm.warp(block.timestamp + 3600);
         uint256 before = weth.balanceOf(address(this));
         c.harvest(0, address(this));
         (uint256 amount, int256 rewardDebt,) = c.userInfo(0, address(this));
