@@ -21,7 +21,6 @@ export default function PositionTrack({
   const p = trackRef.current
     ? (trackRef.current.offsetWidth * (clamped - min)) / (max - min)
     : 0;
-  console.log(trackRef?.current?.offsetWidth, p, clamped, min, max, value);
   return (
     <div
       ref={trackRef}
