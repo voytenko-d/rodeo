@@ -23,7 +23,6 @@ contract RodeoChef is Ownable, Util, Multicall {
     }
 
     IERC20 public rewardToken;
-    address public rewardOwner;
 
     PoolInfo[] public poolInfo;
     IERC20[] public token;
@@ -42,18 +41,13 @@ contract RodeoChef is Ownable, Util, Multicall {
     event LogSetPool(uint256 indexed pid, uint256 allocPoint);
     event LogUpdatePool(uint256 indexed pid, uint64 lastRewardBlock, uint256 lpSupply, uint256 accRewardPerShare);
 
-    constructor(IERC20 _rewardToken, address _rewardOwner, uint256 _rewardPerBlock) Ownable() {
+    constructor(IERC20 _rewardToken, uint256 _rewardPerBlock) Ownable() {
         rewardToken = _rewardToken;
-        rewardOwner = _rewardOwner;
         rewardPerBlock = _rewardPerBlock;
     }
 
     function setRewardToken(IERC20 _rewardToken) public onlyOwner {
         rewardToken = _rewardToken;
-    }
-
-    function setRewardOwner(address _rewardOwner) public onlyOwner {
-        rewardOwner = _rewardOwner;
     }
 
     function setRewardsPerBlock(uint256 _rewardPerBlock) public onlyOwner {
@@ -165,7 +159,8 @@ contract RodeoChef is Ownable, Util, Multicall {
         user.rewardDebt = accumulatedReward;
 
         if (_pendingReward != 0) {
-            rewardToken.safeTransferFrom(rewardOwner, to, _pendingReward);
+            require(rewardToken.balanceOf(address(this)) >= _pendingReward, "!not enough reward");
+            rewardToken.safeTransferFrom(address(this), to, _pendingReward);
         }
         
         emit Harvest(msg.sender, pid, _pendingReward);
@@ -191,7 +186,7 @@ contract RodeoChef is Ownable, Util, Multicall {
     //     } else {
     //         token[pid].safeTransfer(to, amount);
     //     }
-    //     rewardToken.safeTransferFrom(rewardOwner, to, _pendingReward);
+    //     rewardToken.safeTransferFrom(address(this), to, _pendingReward);
         
     //     emit Withdraw(msg.sender, pid, amount, to, isUnstake);
     //     emit Harvest(msg.sender, pid, _pendingReward);
