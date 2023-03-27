@@ -1010,6 +1010,12 @@ function InputAmount({ amount, setAmount, max, asset, decimals, buy }) {
 }
 
 function InputLeverage({ value, setValue }) {
+  const [inputValue, setInputValue] = useState("");
+
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
   return (
     <div>
       <div className="grid-2" style={{ gridTemplateColumns: "1fr 90px" }}>
@@ -1027,8 +1033,9 @@ function InputLeverage({ value, setValue }) {
           className="input mb-2"
           type="number"
           style={{ width: 90, textAlign: "right" }}
-          value={value}
-          onInput={(e) => setValue(e.target.value)}
+          value={inputValue}
+          onInput={(e) => setInputValue(e.target.value)}
+          onBlur={() => setValue(inputValue)}
           placeholder="0.00"
           align="right"
         />
