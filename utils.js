@@ -1164,7 +1164,7 @@ export function usePositions() {
           p.profitPercent = p.profitUsd.mul(ONE).div(p.amountUsd);
           p.liquidationUsd = p.borrowUsd.mul(100).div(95);
           p.liquidationPercent = ONE.sub(
-            p.liquidationUsd.mul(ONE).div(p.borrowUsd.add(p.amountUsd))
+            p.liquidationUsd.mul(ONE).div(p.sharesUsd)
           );
           if (p.sharesUsd.gt(0)) {
             p.leverage = p.borrowUsd
