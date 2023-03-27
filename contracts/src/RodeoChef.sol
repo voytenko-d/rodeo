@@ -4,11 +4,10 @@ pragma solidity 0.8.17;
 import {IERC20} from "./interfaces/IERC20.sol";
 import {IPool} from "./interfaces/IPool.sol";
 import {SafeERC20} from "./lib/SafeERC20.sol";
-import {Ownable} from "./lib/Ownable.sol";
 import {Multicall} from "./utils/Multicall.sol";
 import {Util} from "./Util.sol";
 
-contract RodeoChef is Ownable, Util, Multicall {
+contract RodeoChef is Util, Multicall {
     using SafeERC20 for IERC20;
 
     struct UserInfo {
@@ -18,10 +17,11 @@ contract RodeoChef is Ownable, Util, Multicall {
 
     struct PoolInfo {
         uint128 accRewardPerShare;
-        uint64 lastRewardBlock;
+        uint64 lastRewardTime;
         uint64 allocPoint;
     }
 
+    address public owner;
     IERC20 public rewardToken;
 
     PoolInfo[] public poolInfo;
@@ -30,7 +30,7 @@ contract RodeoChef is Ownable, Util, Multicall {
     mapping (uint256 => mapping (address => UserInfo)) public userInfo;
     uint256 public totalAllocPoint;
 
-    uint256 public rewardPerBlock = 0;
+    uint256 public rewardPerDay;
     uint256 private constant ACC_PRECISION = 1e12;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount, address indexed to, bool isRibToken);
@@ -41,17 +41,22 @@ contract RodeoChef is Ownable, Util, Multicall {
     event LogSetPool(uint256 indexed pid, uint256 allocPoint);
     event LogUpdatePool(uint256 indexed pid, uint64 lastRewardBlock, uint256 lpSupply, uint256 accRewardPerShare);
 
-    constructor(IERC20 _rewardToken, uint256 _rewardPerBlock) Ownable() {
+    constructor(IERC20 _rewardToken, uint256 _rewardPerDay) {
         rewardToken = _rewardToken;
-        rewardPerBlock = _rewardPerBlock;
+        rewardPerDay = _rewardPerDay;
+        owner = msg.sender;
+    }
+
+    function setOwner(address _owner) external onlyOwner {
+        owner = _owner;
     }
 
     function setRewardToken(IERC20 _rewardToken) public onlyOwner {
         rewardToken = _rewardToken;
     }
 
-    function setRewardsPerBlock(uint256 _rewardPerBlock) public onlyOwner {
-        rewardPerBlock = _rewardPerBlock;
+    function setRewardsPerDay(uint256 _rewardPerDay) public onlyOwner {
+        rewardPerDay = _rewardPerDay;
     }
 
     function poolLength() public view returns (uint256 pools) {
@@ -59,13 +64,12 @@ contract RodeoChef is Ownable, Util, Multicall {
     }
 
     function add(uint256 allocPoint, IERC20 _token) public onlyOwner {
-        uint256 lastRewardBlock = block.number;
         totalAllocPoint = totalAllocPoint + allocPoint;
         token.push(_token);
 
         poolInfo.push(PoolInfo({
             allocPoint: uint64(allocPoint),
-            lastRewardBlock: uint64(lastRewardBlock),
+            lastRewardTime: uint64(block.timestamp),
             accRewardPerShare: 0
         }));
         emit LogPoolAddition(token.length - 1, allocPoint, _token);
@@ -81,11 +85,12 @@ contract RodeoChef is Ownable, Util, Multicall {
         PoolInfo memory pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
         uint256 accRewardPerShare = pool.accRewardPerShare;
-        uint256 lpSupply = token[_pid].balanceOf(address(this));
-        if (block.number > pool.lastRewardBlock && lpSupply != 0) {
-            uint256 blocks = block.number - pool.lastRewardBlock;
-            uint256 reward = (blocks * rewardPerBlock * pool.allocPoint) / totalAllocPoint;
-            accRewardPerShare = accRewardPerShare + ((reward * ACC_PRECISION) / lpSupply);
+        uint256 tokenSupply = token[_pid].balanceOf(address(this));
+        if (block.timestamp > pool.lastRewardTime && tokenSupply != 0) {
+            uint256 timeSinceLastReward = block.timestamp - pool.lastRewardTime;
+            uint256 reward = timeSinceLastReward * rewardPerDay * pool.allocPoint / totalAllocPoint / 86400;
+
+            accRewardPerShare = accRewardPerShare + ((reward * ACC_PRECISION) / tokenSupply);
         }
         pending = uint256(int256((user.amount * accRewardPerShare) / ACC_PRECISION) - user.rewardDebt);
     }
@@ -99,16 +104,16 @@ contract RodeoChef is Ownable, Util, Multicall {
 
     function updatePool(uint256 pid) public returns (PoolInfo memory pool) {
         pool = poolInfo[pid];
-        if (block.number > pool.lastRewardBlock) {
+        if (block.timestamp > pool.lastRewardTime) {
             uint256 lpSupply = token[pid].balanceOf(address(this));
             if (lpSupply > 0) {
-                uint256 blocks = block.number - pool.lastRewardBlock;
-                uint256 reward = (blocks * rewardPerBlock * pool.allocPoint) / totalAllocPoint;
+                uint256 timeSinceLastReward = block.timestamp - pool.lastRewardTime;
+                uint256 reward = timeSinceLastReward * rewardPerDay * pool.allocPoint / totalAllocPoint / 86400;
                 pool.accRewardPerShare = pool.accRewardPerShare + uint128((reward * ACC_PRECISION) / lpSupply);
             }
-            pool.lastRewardBlock = uint64(block.number);
+            pool.lastRewardTime = uint64(block.timestamp);
             poolInfo[pid] = pool;
-            emit LogUpdatePool(pid, pool.lastRewardBlock, lpSupply, pool.accRewardPerShare);
+            emit LogUpdatePool(pid, pool.lastRewardTime, lpSupply, pool.accRewardPerShare);
         }
     }
 
@@ -166,9 +171,10 @@ contract RodeoChef is Ownable, Util, Multicall {
         emit Harvest(msg.sender, pid, _pendingReward);
     }
 
-    function updateUserReward(uint256 pid, uint256 amount, address userAddress) external onlyOwner {
+    function updateUserPosition(uint256 pid, uint256 amount, address userAddress) external onlyOwner {
         UserInfo storage user = userInfo[pid][userAddress];
-        user.amount -= amount;
+        user.amount = amount;
+        user.rewardDebt = 0;
     }
     
     // function withdrawAndHarvest(uint256 pid, uint256 amount, address to, bool isUnstake) public {
@@ -200,5 +206,10 @@ contract RodeoChef is Ownable, Util, Multicall {
 
         token[pid].safeTransfer(to, amount);
         emit EmergencyWithdraw(msg.sender, pid, amount, to);
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "!owner");
+        _;
     }
 }
