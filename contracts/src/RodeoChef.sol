@@ -13,6 +13,7 @@ contract RodeoChef is Util, Multicall {
     struct UserInfo {
         uint256 amount;
         int256 rewardDebt;
+        uint256 lockTimestamp;
     }
 
     struct PoolInfo {
@@ -33,8 +34,10 @@ contract RodeoChef is Util, Multicall {
     uint256 public rewardPerDay;
     uint256 private constant ACC_PRECISION = 1e12;
 
-    event Deposit(address indexed user, uint256 indexed pid, uint256 amount, address indexed to, bool isRibToken);
-    event Withdraw(address indexed user, uint256 indexed pid, uint256 amount, address indexed to, bool isUnstake);
+    event Deposit(address indexed user, uint256 indexed pid, uint256 amount, address indexed to, uint256 lockTimestamp);
+    event DepositAndWrap(address indexed user, uint256 indexed pid, uint256 amount, address indexed to, uint256 lockTimestamp);
+    event Withdraw(address indexed user, uint256 indexed pid, uint256 amount, address indexed to);
+    event WithdrawAndUnwrap(address indexed user, uint256 indexed pid, uint256 amount, address indexed to);
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount, address indexed to);
     event Harvest(address indexed user, uint256 indexed pid, uint256 amount);
     event LogPoolAddition(uint256 indexed pid, uint256 allocPoint, IERC20 indexed token);
@@ -117,43 +120,54 @@ contract RodeoChef is Util, Multicall {
         }
     }
 
-    function deposit(uint256 pid, uint256 amount, address to, bool isRibToken) public live {
+    function deposit(uint256 pid, uint256 amount, address to, uint256 lockTimestamp) public live {
         PoolInfo memory pool = updatePool(pid);
         UserInfo storage user = userInfo[pid][to];
 
-        if (!isRibToken) {
-            IPool liquidityPool = IPool(address(token[pid]));
-            uint256 tokenBalanceBefore = liquidityPool.balanceOf(address(this));
-            address underlyingToken = liquidityPool.asset();
-            IERC20(underlyingToken).safeTransferFrom(msg.sender, address(this), amount);
-            liquidityPool.mint(amount, address(this));
-            uint256 tokenBalanceAfter = liquidityPool.balanceOf(address(this));
-            amount = tokenBalanceAfter - tokenBalanceBefore;
-        } else {
-            token[pid].safeTransferFrom(msg.sender, address(this), amount);
-        }
+        token[pid].safeTransferFrom(msg.sender, address(this), amount);
         user.amount = user.amount + amount;
         user.rewardDebt = user.rewardDebt + int256((amount * pool.accRewardPerShare) / ACC_PRECISION);
+        user.lockTimestamp = lockTimestamp;
 
-        emit Deposit(msg.sender, pid, amount, to, isRibToken);
+        emit Deposit(msg.sender, pid, amount, to, lockTimestamp);
     }
 
-    function withdraw(uint256 pid, uint256 amount, address to, bool isUnstake) public live {
+    function depositAndWrap(uint256 pid, uint256 amount, address to, uint256 lockTimestamp) public live {
+        PoolInfo memory pool = updatePool(pid);
+        UserInfo storage user = userInfo[pid][to];
+
+        uint256 ribAmount = wrapInternal(pid, amount, msg.sender);
+        user.amount = user.amount + ribAmount;
+        user.rewardDebt = user.rewardDebt + int256((amount * pool.accRewardPerShare) / ACC_PRECISION);
+        user.lockTimestamp = lockTimestamp;
+        emit DepositAndWrap(msg.sender, pid, amount, to, lockTimestamp);
+    }
+
+    function withdraw(uint256 pid, uint256 amount, address to) public live {
         PoolInfo memory pool = updatePool(pid);
         UserInfo storage user = userInfo[pid][msg.sender];
+        require(block.timestamp > user.lockTimestamp, "!locked");
 
         user.rewardDebt = user.rewardDebt - int256((amount * pool.accRewardPerShare) / ACC_PRECISION);
         user.amount = user.amount - amount;
 
-        if (isUnstake) {
-            IPool liquidityPool = IPool(address(token[pid]));
-            liquidityPool.burn(amount, to);
-        } else {
-            token[pid].safeTransfer(to, amount);
-        }
+        token[pid].safeTransfer(to, amount);
 
-        emit Withdraw(msg.sender, pid, amount, to, isUnstake);
+        emit Withdraw(msg.sender, pid, amount, to);
     }
+
+    function withdrawAndUnwrap(uint256 pid, uint256 amount, address to) public live {
+        PoolInfo memory pool = updatePool(pid);
+        UserInfo storage user = userInfo[pid][msg.sender];
+
+        require(block.timestamp > user.lockTimestamp, "!locked");
+
+        user.rewardDebt = user.rewardDebt - int256((amount * pool.accRewardPerShare) / ACC_PRECISION);
+        user.amount = user.amount - amount;
+        unwrapInternal(pid, amount, to);
+
+        emit WithdrawAndUnwrap(msg.sender, pid, amount, to);
+    } 
 
     function harvest(uint256 pid, address to) public {
         PoolInfo memory pool = updatePool(pid);
@@ -206,6 +220,21 @@ contract RodeoChef is Util, Multicall {
 
         token[pid].safeTransfer(to, amount);
         emit EmergencyWithdraw(msg.sender, pid, amount, to);
+    }
+
+    function wrapInternal(uint256 pid, uint256 amount, address wrapper) internal returns (uint256 wrappedAmount) {
+        IPool liquidityPool = IPool(address(token[pid]));
+        uint256 tokenBalanceBefore = liquidityPool.balanceOf(address(this));
+        address underlyingToken = liquidityPool.asset();
+        IERC20(underlyingToken).safeTransferFrom(wrapper, address(this), amount);
+        liquidityPool.mint(amount, address(this));
+        uint256 tokenBalanceAfter = liquidityPool.balanceOf(address(this));
+        wrappedAmount = tokenBalanceAfter - tokenBalanceBefore;
+    }
+
+    function unwrapInternal(uint256 pid, uint256 amount, address to) internal {
+        IPool liquidityPool = IPool(address(token[pid]));
+        liquidityPool.burn(amount, to);
     }
 
     modifier onlyOwner() {
