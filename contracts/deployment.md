@@ -10,6 +10,7 @@
 - PositionManager https://arbiscan.io/address/0x5e4d7F61cC608485A2E4F105713D26D58a9D0cF6
 - Pool (USDC) * https://arbiscan.io/address/0x0032F5E1520a66C6E572e96A11fBF54aea26f9bE
 - PoolRateModel (USDC) * https://arbiscan.io/address/0x3D288C83b6030f86d83E5C8Dc4150382004471A8
+- LiquidityMining https://arbiscan.io/address/0xE1ab63006e0fa0434a0e9665483B64F83eA9E04a
 
 **Pricing/Oracles**
 

@@ -40,6 +40,7 @@ contract LiquidityMining is Util {
     }
 
     function file(bytes32 what, uint256 data) external auth {
+        if (what == "paused") paused = data == 1;
         if (what == "rewardPerDay") rewardPerDay = data;
         emit FileInt(what, data);
     }
@@ -127,7 +128,9 @@ contract LiquidityMining is Util {
     function depositAndWrap(uint256 pid, uint256 amount, address to, uint256 lock) public live {
         IPool pool = IPool(address(token[pid]));
         uint256 bef = IERC20(address(pool)).balanceOf(address(this));
-        IERC20(pool.asset()).transferFrom(msg.sender, address(this), amount);
+        IERC20 tok = IERC20(pool.asset());
+        tok.transferFrom(msg.sender, address(this), amount);
+        tok.approve(address(pool), amount);
         pool.mint(amount, address(this));
         uint256 aft = IERC20(address(pool)).balanceOf(address(this));
         _deposit(msg.sender, pid, aft - bef, to, lock);

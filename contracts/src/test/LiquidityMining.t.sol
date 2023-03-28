@@ -16,7 +16,7 @@ contract LiquidityMiningTest is Test {
         c.poolAdd(4000, address(wethPool));
         usdc.approve(address(usdcPool), 100e6);
         usdcPool.mint(100e6, address(this));
-        usdcPool.approve(address(c), 60e6);
+        usdcPool.approve(address(c), 70e6);
         vm.warp(block.timestamp + 3600);
     }
 
@@ -34,6 +34,9 @@ contract LiquidityMiningTest is Test {
         assertTrue(c.exec(vm.addr(2)));
         c.file("exec", vm.addr(2));
         assertTrue(!c.exec(vm.addr(2)));
+        c.file("paused", 1);
+        vm.expectRevert();
+        c.deposit(0, 1e6, address(this), 0);
     }
 
     function testConfigure() public {
@@ -61,6 +64,12 @@ contract LiquidityMiningTest is Test {
         (amount, rewardDebt,) = c.userInfo(0, address(this));
         assertEq(amount, 60e6);
         assertEq(rewardDebt, 34166666666666666666);
+
+        c.deposit(0, 10e6, address(this), 3600);
+        (,, uint256 lock) = c.userInfo(0, address(this));
+        assertEq(lock, block.timestamp + 3600);
+        vm.expectRevert();
+        c.withdraw(0, 1e6, address(this));
     }
 
     function testWithdraw() public {
@@ -86,12 +95,22 @@ contract LiquidityMiningTest is Test {
         assertEq(usdcPool.balanceOf(address(this)) - before, 10e6);
     }
 
+    function testWrapping() public {
+        usdc.approve(address(c), 10e6);
+        c.depositAndWrap(0, 10e6, address(this), 0);
+        uint256 before = usdc.balanceOf(address(this));
+        (uint256 amount,,) = c.userInfo(0, address(this));
+        c.withdrawAndUnwrap(0, amount, address(this));
+        assertEq(usdc.balanceOf(address(this)) - before, 9999999);
+    }
+
     function testHarvest() public {
         c.file("rewardToken", address(weth));
         weth.transfer(address(c), 100e18);
         c.deposit(0, 50e6, address(this), 0);
         vm.warp(block.timestamp + 3600);
         uint256 before = weth.balanceOf(address(this));
+        assertEq(c.pendingRewards(0, address(this)), 25e18);
         c.harvest(0, address(this));
         (uint256 amount, int256 rewardDebt,) = c.userInfo(0, address(this));
         assertEq(amount, 50e6);
