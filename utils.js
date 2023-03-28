@@ -985,14 +985,18 @@ export function formatChartDate(date) {
 
 export async function tokensOfOwner(provider, tokenAddress, account) {
   const network = await provider.getNetwork();
-  if (network.chainId === 42161) {
-    const res = await (
-      await fetch(
-        process.env.NEXT_PUBLIC_RODEO_RPC_URL_ARBITRUM +
-          `/getNFTs?owner=${account}&contractAddresses%5B%5D=${tokenAddress}`
-      )
-    ).json();
-    return res.ownedNfts.map((n) => n.title.slice(1));
+  try {
+    if (network.chainId === 42161) {
+      const res = await (
+        await fetch(
+          process.env.NEXT_PUBLIC_RODEO_RPC_URL_ARBITRUM +
+            `/getNFTs?owner=${account}&contractAddresses%5B%5D=${tokenAddress}`
+        )
+      ).json();
+      return res.ownedNfts.map((n) => n.title.slice(1));
+    }
+  } catch (e) {
+    console.error("failed to fetch nfts using alchemy, defaulting to rpc", e);
   }
   const token = await new ethers.Contract(
     tokenAddress,
