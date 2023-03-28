@@ -43,9 +43,16 @@ contract ERC20 {
     }
 
     function approve(address usr, uint256 amt) external returns (bool) {
-        allowance[msg.sender][usr] = amt;
-        emit Approval(msg.sender, usr, amt);
+        _approve(msg.sender, usr, amt);
         return true;
+    }
+
+    function _approve(address owner, address usr, uint256 amt) internal virtual {
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(usr != address(0), "ERC20: approve to the zero address");
+
+        allowance[owner][usr] = amt;
+        emit Approval(owner, usr, amt);
     }
 
     function _mint(address usr, uint256 amt) internal {
