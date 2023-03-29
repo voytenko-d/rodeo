@@ -11,22 +11,20 @@ contract Token is ERC20, ERC20Permit, Util {
         uint256 amt;
     }
 
-    uint256 public emissionRate; // percentage value
-    uint256 public emissionStartDate;
-    uint256 public MAX_BPS = 10_000;
+    uint64 public emissionRate; // percentage value
+    uint64 public MAX_BPS = 10_000;
 
-    uint256 public lastMintTime;
+    uint64 public lastMintTime;
+    uint64 public decayPerWeek;
     address public emissionsRecipient;
 
     event Mint(address indexed dst, uint256 amt);
-    event SetWeeklySupply(address indexed owner, uint256 amt);
+    event SetWeeklySupply(address indexed owner, uint64 amt, uint64 decay);
     event SetMintAddr(address indexed owner, address newMintAddr);
 
     error NoMintAddress();
 
-    constructor(
-        uint256 _initialSupply
-    ) ERC20("Token", "TOKEN", 18) ERC20Permit("Token") {
+    constructor(uint256 _initialSupply) ERC20("Token", "TOKEN", 18) ERC20Permit("Token") {
         exec[msg.sender] = true;
         _mint(msg.sender, _initialSupply);
     }
@@ -35,19 +33,22 @@ contract Token is ERC20, ERC20Permit, Util {
         if (emissionsRecipient == address(0)) {
             revert NoMintAddress();
         }
-        require(block.timestamp >= lastMintTime + 1 weeks, "Can only mint once per week");
-        
-        uint256 amount = totalSupply * emissionRate / MAX_BPS;
 
-        _mint(emissionsRecipient, amount);
-        lastMintTime = block.timestamp;
-        emit Mint(emissionsRecipient, amount);
+        uint256 decayPercent = (block.timestamp - lastMintTime) * decayPerWeek / 604800;
+        uint256 weeklyAmt = totalSupply * uint256(emissionRate) / MAX_BPS;
+        uint256 currentWeekAmt = weeklyAmt * (MAX_BPS - decayPercent) / MAX_BPS;
+        uint256 amtToMint = (block.timestamp - lastMintTime) * currentWeekAmt / 604800;
+
+        _mint(emissionsRecipient, amtToMint);
+        lastMintTime = uint64(block.timestamp);
+        emit Mint(emissionsRecipient, amtToMint);
     }
 
-    function setWeeklySupply(uint256 _emissionRate) external auth {
+    function setWeeklySupply(uint64 _emissionRate, uint64 _decayPerWeek) external auth {
         emissionRate = _emissionRate;
-        emissionStartDate = block.timestamp;
-        emit SetWeeklySupply(msg.sender, _emissionRate);
+        decayPerWeek = _decayPerWeek;
+        lastMintTime = uint64(block.timestamp);
+        emit SetWeeklySupply(msg.sender, _emissionRate, _decayPerWeek);
     }
 
     function setMintAddr(address _mintAddr) external auth {
