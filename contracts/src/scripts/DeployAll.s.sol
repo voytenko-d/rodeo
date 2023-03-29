@@ -10,6 +10,7 @@ import {Investor} from "../Investor.sol";
 import {InvestorActor} from "../InvestorActor.sol";
 import {InvestorHelper} from "../InvestorHelper.sol";
 import {PositionManager} from "../PositionManager.sol";
+import {LiquidityMining} from "../LiquidityMining.sol";
 import {StrategyHelper} from "../StrategyHelper.sol";
 import {StrategyTest} from "../StrategyTest.sol";
 
@@ -36,6 +37,11 @@ contract DeployAll is DSTest {
         investor.file("pools", address(wethPool));
         InvestorHelper ih = new InvestorHelper(address(investor));
         PositionManager pm = new PositionManager(address(investor));
+        LiquidityMining lm = new LiquidityMining();
+        lm.file("rewardPerDay", 10e18);
+        lm.file("rewardToken", address(weth));
+        lm.poolAdd(1000, address(usdcPool));
+        weth.mint(address(lm), 1000e18);
 
         StrategyHelper sh = new StrategyHelper();
         sh.setOracle(address(usdc), address(usdcOracle));
@@ -69,6 +75,7 @@ contract DeployAll is DSTest {
         emit log_named_address("Investor", address(investor));
         emit log_named_address("InvestorHelper", address(ih));
         emit log_named_address("PositionManager", address(pm));
+        emit log_named_address("LiquidityMining", address(lm));
         emit log_named_address("StrategyHelper", address(sh));
         emit log_named_address("StrategyTest", address(st));
     }

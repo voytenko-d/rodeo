@@ -32,6 +32,7 @@ export const ADDRESSES = {
     investor: "0x8accf43Dd31DfCd4919cc7d65912A475BfA60369",
     investorHelper: "0x6f456005A7CfBF0228Ca98358f60E6AE1d347E18",
     positionManager: "0x5e4d7F61cC608485A2E4F105713D26D58a9D0cF6",
+    liquidityMining: "0xE1ab63006e0fa0434a0e9665483B64F83eA9E04a",
   },
   "arbitrum-rinkeby": {
     investor: "0x057c7a9627eff1d7054cde31015bcd1ede9a612d",
@@ -42,6 +43,7 @@ export const ADDRESSES = {
     investor: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
     investorHelper: "0x959922be3caee4b8cd9a407cc3ac1c251c2007b1",
     positionManager: "0x9a9f2ccfde556a7e9ff0848998aa4a0cfd8863ae",
+    liquidityMining: "0x68b1d87f95878fe05b998f19b66f4baba5de1aed",
   },
 };
 
@@ -486,7 +488,7 @@ export const strategies = {
       icon: "/protocols/sushiswap.png",
       index: 0,
       slippage: 150,
-      address: "0x59b670e9fA9D0A427751Af201D676719a970857b",
+      address: "0x7a2088a1bfc9d81c55368ae168c2c02570cb814f",
       apy: { type: "defillama", id: "825688c0-c694-4a6b-8497-177e425b7348" },
       description: "High APY farm, should double your deposit every day.",
       slug: "acmefi-apy",
@@ -983,14 +985,18 @@ export function formatChartDate(date) {
 
 export async function tokensOfOwner(provider, tokenAddress, account) {
   const network = await provider.getNetwork();
-  if (network.chainId === 42161) {
-    const res = await (
-      await fetch(
-        process.env.NEXT_PUBLIC_RODEO_RPC_URL_ARBITRUM +
-          `/getNFTs?owner=${account}&contractAddresses%5B%5D=${tokenAddress}`
-      )
-    ).json();
-    return res.ownedNfts.map((n) => n.title.slice(1));
+  try {
+    if (network.chainId === 42161) {
+      const res = await (
+        await fetch(
+          process.env.NEXT_PUBLIC_RODEO_RPC_URL_ARBITRUM +
+            `/getNFTs?owner=${account}&contractAddresses%5B%5D=${tokenAddress}`
+        )
+      ).json();
+      return res.ownedNfts.map((n) => n.title.slice(1));
+    }
+  } catch (e) {
+    console.error("failed to fetch nfts using alchemy, defaulting to rpc", e);
   }
   const token = await new ethers.Contract(
     tokenAddress,

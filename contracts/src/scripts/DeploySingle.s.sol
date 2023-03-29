@@ -13,6 +13,7 @@ import {StrategyHelper, StrategyHelperMulti} from "../StrategyHelper.sol";
 import {PartnerProxy} from "../PartnerProxy.sol";
 import {StrategyJonesUsdc} from "../StrategyJonesUsdc.sol";
 import {OracleUniswapV2} from "../OracleUniswapV2.sol";
+import {LiquidityMining} from "../LiquidityMining.sol";
 import {console} from "../test/utils/console.sol";
 
 interface Hevm {
@@ -61,7 +62,7 @@ contract DeploySingle {
         address investor = 0x8accf43Dd31DfCd4919cc7d65912A475BfA60369;
         address strategyHelper = 0x72f7101371201CeFd43Af026eEf1403652F115EE;
         address investorActor = 0x9D6A853Da8BF51386240Ad1ed19E13C48dF3a2A7;
-        //address poolUsdc = 0x0032F5E1520a66C6E572e96A11fBF54aea26f9bE;
+        address poolUsdc = 0x0032F5E1520a66C6E572e96A11fBF54aea26f9bE;
         //address shss = 0x4cA2a8cC7B1110CF3961D1F4AAB195d3Ab61BF9b;
         //address shv3 = 0xaFF008DD677d2a9fd74D27B26Efc10A8e3f7BDaD;
         //address shb = 0xb1Ae664e23332eE54e0C029937e26058a08708cC;
@@ -74,7 +75,13 @@ contract DeploySingle {
 
         vm.startBroadcast();
 
-        multisig.add(usdc, 0, abi.encodeWithSignature("transfer(address,uint256)", 0x2AeDb0E9A6BB2571CD9651D3297f83e5C9379480, 1116493829));
+        /*
+        LiquidityMining lm = new LiquidityMining();
+        lm.poolAdd(10000, poolUsdc);
+        lm.file("rewardPerDay", 10e18);
+        lm.file("exec", address(multisig));
+        lm.file("exec", deployer);
+        */
 
         //multisig.add(0x5859731D7b7e413A958eA1cDb9020C611b016395, 0, abi.encodeWithSignature("call(address,uint256,bytes)", 0x2F43c6475f1ecBD051cE486A9f3Ccc4b03F3d713, 0, abi.encodeWithSignature("redeemStable(uint256)", 1679529600)));
         //multisig.add(0x5859731D7b7e413A958eA1cDb9020C611b016395, 0, abi.encodeWithSignature("pull(address)", usdc));

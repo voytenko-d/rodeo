@@ -15,6 +15,7 @@ interface IPool {
     function totalBorrow() external view returns (uint256);
     function getUpdatedIndex() external view returns (uint256);
     function mint(uint256, address) external;
+    function burn(uint256, address) external;
     function borrow(uint256) external returns (uint256);
     function repay(uint256) external returns (uint256);
 }
