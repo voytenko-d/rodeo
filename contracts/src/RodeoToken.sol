@@ -20,7 +20,7 @@ contract Token is ERC20, ERC20Permit, Util {
 
     event Mint(address indexed dst, uint256 amt);
     event SetWeeklySupply(address indexed owner, uint64 amt, uint64 decay);
-    event SetMintAddr(address indexed owner, address newMintAddr);
+    event SetEmissionAddr(address indexed owner, address newEmissionAddr);
 
     error NoMintAddress();
 
@@ -29,15 +29,15 @@ contract Token is ERC20, ERC20Permit, Util {
         _mint(msg.sender, _initialSupply);
     }
 
-    function mint() external {
+    function emissionMint() external {
         if (emissionsRecipient == address(0)) {
             revert NoMintAddress();
         }
-
-        uint256 decayPercent = (block.timestamp - lastMintTime) * decayPerWeek / 604800;
+        uint256 timeElapsed = block.timestamp - uint256(lastMintTime);
+        uint256 decayPercent = timeElapsed / 604800 * decayPerWeek;
         uint256 weeklyAmt = totalSupply * uint256(emissionRate) / MAX_BPS;
         uint256 currentWeekAmt = weeklyAmt * (MAX_BPS - decayPercent) / MAX_BPS;
-        uint256 amtToMint = (block.timestamp - lastMintTime) * currentWeekAmt / 604800;
+        uint256 amtToMint = timeElapsed * currentWeekAmt / 604800;
 
         _mint(emissionsRecipient, amtToMint);
         lastMintTime = uint64(block.timestamp);
@@ -51,8 +51,8 @@ contract Token is ERC20, ERC20Permit, Util {
         emit SetWeeklySupply(msg.sender, _emissionRate, _decayPerWeek);
     }
 
-    function setMintAddr(address _mintAddr) external auth {
-        emissionsRecipient = _mintAddr;
-        emit SetMintAddr(msg.sender, _mintAddr);
+    function setEmissiontAddr(address _emissionAddr) external auth {
+        emissionsRecipient = _emissionAddr;
+        emit SetEmissionAddr(msg.sender, _emissionAddr);
     }
 }
