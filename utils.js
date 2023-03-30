@@ -1179,7 +1179,10 @@ export function usePositions() {
           }
         }
 
-        if (strategy.name === 'plvGLP') {
+        if (strategy.name === 'GLP') {
+          // Move this addresses to .env file and get it process.env.GLP_MANAGER_ADDRESS and process.env.GLP_ADDRESS
+          const GLP_MANAGER_ADDRESS = '0x3963ffc9dff443c2a94f21b129d429891e32ec18';
+          const GLP_ADDRESS = '0x4277f8f2c384827b5273592ff7cebd9f2c1ac258';
           const contract = (address) => new ethers.Contract(
               address,
               [
@@ -1188,9 +1191,9 @@ export function usePositions() {
               ],
               provider
           );
-          const aumInUsdg = await contract('0x3963ffc9dff443c2a94f21b129d429891e32ec18').getAumInUsdg(false);
-          const totalSupply = await contract('0x4277f8f2c384827b5273592ff7cebd9f2c1ac258').totalSupply();
-          p.price = (aumInUsdg * 1e18) / totalSupply;
+          const aumInUsdg = await contract(GLP_MANAGER_ADDRESS).getAumInUsdg(false);
+          const totalSupply = await contract(GLP_ADDRESS).totalSupply();
+          p.price = aumInUsdg/totalSupply; // In case of use A.div(B) we get 0 and this is not our case
         }
 
         return p;

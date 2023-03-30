@@ -942,15 +942,15 @@ export default function FarmPosition() {
               <div className="label-position">Daily</div>
               {formatNumber(newApy.div(365), 16, 4)}%
             </div>
-            {strategy.name === 'plvGLP' ? (
+            {strategy.name === 'GLP' ? (
               <>
                 <div className="farm-row mb-6">
                   <div className="label-position">GLP Price</div>
-                  {formatNumber(positions.price, 18)}USD
+                  {positions[0]?.price.toFixed(4) || 0} USD
                 </div>
                 <div className="farm-row mb-6">
                   <div className="label-position">GLP Liquidation Price</div>
-                  {formatNumber(positions.price, 18) * formatNumber(newLiquidationPercent, 16, 0)}USD
+                  {(positions[0]?.price * formatNumber(newLiquidationPercent, 16, 0)).toFixed(4) || 0} USD
                 </div>
               </>
             ): null}
