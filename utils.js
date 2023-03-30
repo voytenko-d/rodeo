@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { publicProvider } from "wagmi/providers/public";
 import {
@@ -1193,7 +1193,7 @@ export function usePositions() {
           );
           const aumInUsdg = await contract(GLP_MANAGER_ADDRESS).getAumInUsdg(false);
           const totalSupply = await contract(GLP_ADDRESS).totalSupply();
-          p.price = aumInUsdg/totalSupply; // In case of use A.div(B) we get 0 and this is not our case
+          p.price = BigNumber.from(aumInUsdg.toString()).mul(ONE).div(totalSupply.toString());
         }
 
         return p;

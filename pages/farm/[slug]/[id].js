@@ -946,11 +946,14 @@ export default function FarmPosition() {
               <>
                 <div className="farm-row mb-6">
                   <div className="label-position">GLP Price</div>
-                  {positions[0]?.price.toFixed(4) || 0} USD
+                  {formatNumber(positions[0]?.price, 18, 2) || 0} USD
                 </div>
                 <div className="farm-row mb-6">
                   <div className="label-position">GLP Liquidation Price</div>
-                  {(positions[0]?.price * formatNumber(newLiquidationPercent, 16, 0)).toFixed(4) || 0} USD
+                  {positionChanged
+                      ? formatNumber(positions[0]?.price.mul(newLiquidationPercent), 34, 2)
+                      : formatNumber(positions[0]?.price.mul(position?.liquidationPercent), 34, 2)
+                  } USD
                 </div>
               </>
             ): null}
