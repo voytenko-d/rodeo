@@ -1,30 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {ERC20Permit} from "./ERC20Permit.sol";
-import {ERC20} from "./ERC20.sol";
+import {ERC20Permit} from "./ERC20.sol";
 import {Util} from "./Util.sol";
 
-contract Token is ERC20, ERC20Permit, Util {
-    struct WhiteList {
-        address usr;
-        uint256 amt;
-    }
+contract Token is ERC20Permit, Util {
+    error NoMintAddress();
+    error NoEmissionSent();
 
-    uint64 public emissionRate; // percentage value
-    uint64 public MAX_BPS = 10_000;
+    uint256 public emissionRate; // percentage value
+    uint256 public MAX_BPS = 1e18;
 
-    uint64 public lastMintTime;
-    uint64 public decayPerWeek;
+    uint256 public lastMintTime;
+    uint256 public decayPerWeek;
+    uint256 public lastAmtPerWeek;
     address public emissionsRecipient;
 
     event Mint(address indexed dst, uint256 amt);
-    event SetWeeklySupply(address indexed owner, uint64 amt, uint64 decay);
-    event SetEmissionAddr(address indexed owner, address newEmissionAddr);
+    event SetEmissions(address indexed owr, uint256 amt, uint256 dec);
+    event SetEmissionRecipient(address indexed owr, address emi);
 
-    error NoMintAddress();
-
-    constructor(uint256 _initialSupply) ERC20("Token", "TOKEN", 18) ERC20Permit("Token") {
+    constructor(uint256 _initialSupply) ERC20Permit("Rodeo", "RODEO", 18) {
         exec[msg.sender] = true;
         _mint(msg.sender, _initialSupply);
     }
@@ -33,26 +29,29 @@ contract Token is ERC20, ERC20Permit, Util {
         if (emissionsRecipient == address(0)) {
             revert NoMintAddress();
         }
-        uint256 timeElapsed = block.timestamp - uint256(lastMintTime);
-        uint256 decayPercent = timeElapsed / 604800 * decayPerWeek;
-        uint256 weeklyAmt = totalSupply * uint256(emissionRate) / MAX_BPS;
-        uint256 currentWeekAmt = weeklyAmt * (MAX_BPS - decayPercent) / MAX_BPS;
-        uint256 amtToMint = timeElapsed * currentWeekAmt / 604800;
+        uint256 timeElapsed = block.timestamp - lastMintTime;
+        uint256 decayPercent = timeElapsed * decayPerWeek / 604800;
+        lastAmtPerWeek = lastAmtPerWeek * (MAX_BPS - decayPercent) / MAX_BPS;
+        uint amtToMint = timeElapsed * lastAmtPerWeek / 604800;
 
+        uint receivedAmt = balanceOf[emissionsRecipient];
         _mint(emissionsRecipient, amtToMint);
-        lastMintTime = uint64(block.timestamp);
+        receivedAmt = balanceOf[emissionsRecipient] - receivedAmt;
+        if (receivedAmt != amtToMint) revert NoEmissionSent();
+        lastMintTime = block.timestamp;
         emit Mint(emissionsRecipient, amtToMint);
     }
 
-    function setWeeklySupply(uint64 _emissionRate, uint64 _decayPerWeek) external auth {
+    function setEmissions(uint256 _emissionRate, uint256 _decayPerWeek) external auth {
         emissionRate = _emissionRate;
         decayPerWeek = _decayPerWeek;
-        lastMintTime = uint64(block.timestamp);
-        emit SetWeeklySupply(msg.sender, _emissionRate, _decayPerWeek);
+        lastAmtPerWeek = totalSupply * emissionRate / MAX_BPS;
+        lastMintTime = block.timestamp;
+        emit SetEmissions(msg.sender, _emissionRate, _decayPerWeek);
     }
 
-    function setEmissiontAddr(address _emissionAddr) external auth {
-        emissionsRecipient = _emissionAddr;
-        emit SetEmissionAddr(msg.sender, _emissionAddr);
+    function setEmissionsRecipient(address emi) external auth {
+        emissionsRecipient = emi;
+        emit SetEmissionRecipient(msg.sender, emi);
     }
 }
