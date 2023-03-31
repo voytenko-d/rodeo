@@ -16,7 +16,8 @@ export default function DiscreteSliders({
     const r = (max - min) / (range - 1);
     const p = (track / (range - 1)) * (x + 1);
     const v = min + r * (x + 1);
-    return { p, v };
+    const pers = p / track * 100;
+    return { p, v, pers };
   };
 
   const TrackWithDelimiters = useCallback(() => {
@@ -33,17 +34,19 @@ export default function DiscreteSliders({
           className={`discrete-sliders__delimiters-element ${
             value >= min ? "delimiter-active" : ""
           }`}
-          style={{ left: `0px` }}
+          onClick={()=> onInput(`${min}`)}
+          style={{ left: `0%` }}
         ></span>
         {Array.from([...Array(range - 2).keys()]).map((x, i, arr) => {
-          const { p, v } = pv(x, track);
+          const { p, v, pers } = pv(x, track);
           return (
             <span
               key={i}
               className={`discrete-sliders__delimiters-element ${
                 value >= v && min !== max ? "delimiter-active" : ""
               }`}
-              style={{ left: `${p}px` }}
+              style={{ left: `${pers}%` }}
+              onClick={()=> onInput(`${v}`)}
             ></span>
           );
         })}
@@ -51,7 +54,8 @@ export default function DiscreteSliders({
           className={`discrete-sliders__delimiters-element ${
             value >= max && min !== max ? "delimiter-active" : ""
           }`}
-          style={{ left: `${track}px` }}
+          onClick={()=> onInput(`${max}`)}
+          style={{ left: `100%` }}
         ></span>
       </div>
     );
@@ -69,17 +73,17 @@ export default function DiscreteSliders({
       >
         <span
           className="discrete-sliders__markers-element"
-          style={{ left: `0px` }}
+          style={{ left: `0%` }}
         >
           {min.toFixed(0) + "x"}
         </span>
         {Array.from([...Array(range - 2).keys()], (x, i) => {
-          const { p, v } = pv(x, track);
+          const { p, v, pers } = pv(x, track);
           return (
             <span
               className="discrete-sliders__markers-element"
               key={i}
-              style={{ left: `${p}px` }}
+              style={{ left: `${pers}%` }}
             >
               {v.toFixed(0) + "x"}
             </span>
@@ -87,7 +91,7 @@ export default function DiscreteSliders({
         })}
         <span
           className="discrete-sliders__markers-element"
-          style={{ left: `${track}px` }}
+          style={{ left: `100%` }}
         >
           {max.toFixed(0) + "x"}
         </span>
@@ -101,10 +105,11 @@ export default function DiscreteSliders({
       return null;
     }
     const w = (track / (max - min)) * (clampedValue - min);
+    const pers = w / track * 100;
     return (
       <div
         className="discrete-sliders__slider"
-        style={{ width: `${w}px` }}
+        style={{ width: `${pers}%` }}
       ></div>
     );
   }, [trackRef.current, value, min, max]);
