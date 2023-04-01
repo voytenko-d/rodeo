@@ -29,6 +29,8 @@ contract Debug is DSTest, ERC721TokenReceiver {
         address deployer = 0x20dE070F1887f82fcE2bdCf5D6d9874091e6FAe9;
         vm.startPrank(deployer);
 
+        //address(0x2AeDb0E9A6BB2571CD9651D3297f83e5C9379480).call(abi.encodeWithSignature("earn()"));
+
         /*
         // DEPLOY NEW STRATEGY
         StrategyJoe s = new StrategyJoe(

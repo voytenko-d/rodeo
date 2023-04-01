@@ -11,10 +11,10 @@ import {Configurator} from "../support/Configurator.sol";
 import {Multisig} from "../support/Multisig.sol";
 import {StrategyHelper, StrategyHelperMulti} from "../StrategyHelper.sol";
 import {PartnerProxy} from "../PartnerProxy.sol";
-import {StrategyJonesUsdc} from "../StrategyJonesUsdc.sol";
 import {OracleUniswapV2} from "../OracleUniswapV2.sol";
 import {LiquidityMining} from "../LiquidityMining.sol";
 import {console} from "../test/utils/console.sol";
+import {StrategyJonesUsdc} from "../StrategyJonesUsdc.sol";
 
 interface Hevm {
     function warp(uint256) external;
@@ -76,36 +76,17 @@ contract DeploySingle {
         vm.startBroadcast();
 
         /*
-        LiquidityMining lm = new LiquidityMining();
-        lm.poolAdd(10000, poolUsdc);
-        lm.file("rewardPerDay", 10e18);
-        lm.file("exec", address(multisig));
-        lm.file("exec", deployer);
-        */
-
-        //multisig.add(0x5859731D7b7e413A958eA1cDb9020C611b016395, 0, abi.encodeWithSignature("call(address,uint256,bytes)", 0x2F43c6475f1ecBD051cE486A9f3Ccc4b03F3d713, 0, abi.encodeWithSignature("redeemStable(uint256)", 1679529600)));
-        //multisig.add(0x5859731D7b7e413A958eA1cDb9020C611b016395, 0, abi.encodeWithSignature("pull(address)", usdc));
-        //multisig.add(address(strategyHelper), 0, abi.encodeWithSignature("setPath(address,address,address,bytes)", 0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8, weth, 0xb1Ae664e23332eE54e0C029937e26058a08708cC, abi.encodePacked(weth, bytes32(hex"cc65a812ce382ab909a11e434dbf75b34f1cc59d000200000000000000000001"))));
-
-        /*
-        //PartnerProxy proxy = new PartnerProxy();
-        StrategyGMXGLP s = new StrategyGMXGLP(
+        StrategyJonesUsdc s = new StrategyJonesUsdc(
           address(strategyHelper),
-          0xB95DB5B167D75e6d04227CfFFA61069348d271F5,
-          0xA906F338CB21815cBc4Bc87ace9e68c87eF8d8F1,
-          0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf,
-          weth, usdc
+          0x5859731D7b7e413A958eA1cDb9020C611b016395,
+          0x42EfE3E686808ccA051A49BCDE34C5CbA2EBEfc1
         );
-        //proxy.setExec(address(s), true);
-        //proxy.setExec(address(multisig), true);
-        //proxy.setExec(deployer, false);
-        s.file("slippage", 100);
+        //s.file("slippage", 100);
         s.file("exec", investorActor);
         s.file("exec", address(investor));
         s.file("exec", address(multisig));
         s.file("exec", address(deployer));
-        multisig.add(address(investor), 0, abi.encodeWithSignature("setStrategy(uint256,address)", 12, address(s)));
-        console.log("value", s.rate(s.totalShares()));
+        multisig.add(address(investor), 0, abi.encodeWithSignature("setStrategy(uint256,address)", 20, address(s)));
         //multisig.add(address(investor), 0, abi.encodeWithSignature("setStrategy(uint256,address)", investor.nextStrategy(), address(s)));
         //*/
 
@@ -118,28 +99,17 @@ contract DeploySingle {
         multisig.add(address(strategyHelper), 0, abi.encodeWithSignature("setPath(address,address,address,bytes)", pls, weth, shv3, abi.encodePacked(pls, uint24(3000), weth)));
         */
 
-        /*
-        StrategyUniswapV3 s = new StrategyUniswapV3(
-            strategyHelper,
-            0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443,
-            1654
-        );
-        s.file("exec", investorActor);
-        s.file("exec", address(investor));
-        s.file("exec", address(configurator));
-        s.file("exec", deployer);
-        uint256 sid = investor.nextStrategy();
-        configurator.setStrategy(address(investor), sid, address(s));
-        */
-
-        //IFileable(address(s)).file("exec", investorActor);
-        //IFileable(address(s)).file("exec", investor);
-        //IFileable(address(s)).file("exec", address(configurator));
-        //IFileable(address(s)).file("exec", deployer);
+        //StrategyUniswapV3 s = new StrategyUniswapV3(
+        //    strategyHelper,
+        //    0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443,
+        //    1654
+        //);
+        //s.file("exec", investorActor);
+        //s.file("exec", address(investor));
+        //s.file("exec", address(configurator));
+        //s.file("exec", deployer);
         //uint256 sid = investor.nextStrategy();
-        //emit log_named_uint("nextStrategy", sid);
-        //configurator.setStrategy(investor, 16, address(s));
-        //sh.setOracle(0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978, 0xaebDA2c976cfd1eE1977Eac079B4382acb849325);
+        //configurator.setStrategy(address(investor), sid, address(s));
 
         //StrategyCurveV2 s = new StrategyCurveV2(
         //    strategyHelper,

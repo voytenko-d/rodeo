@@ -16,7 +16,7 @@ interface IJonesGlpAdapter {
 interface IJonesGlpVaultRouter {
     function EXIT_COOLDOWN() external view returns (uint256);
     function stableRewardTracker() external view returns (address);
-    function userSignal(address, uint256) external view returns (uint256, uint256, bool, bool);
+    function withdrawSignal(address, uint256) external view returns (uint256, uint256, bool, bool);
     function stableWithdrawalSignal(uint256 amt, bool cpd) external returns (uint256);
     function cancelStableWithdrawalSignal(uint256 eph, bool cpd) external;
     function redeemStable(uint256 eph) external returns (uint256);
@@ -64,7 +64,7 @@ contract StrategyJonesUsdc is Strategy {
     function _rate(uint256 sha) internal view override returns (uint256) {
         uint256 tma = tracker.stakedAmount(address(proxy));
         if (signaledStablesEpoch > 0) {
-            (, uint256 shares,,) = vaultRouter.userSignal(address(proxy), signaledStablesEpoch);
+            (, uint256 shares,,) = vaultRouter.withdrawSignal(address(proxy), signaledStablesEpoch);
             tma += shares;
         }
         uint256 ast0 = asset.balanceOf(address(this));
