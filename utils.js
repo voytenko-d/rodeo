@@ -186,7 +186,7 @@ export const strategies = {
       name: "jUSDC",
       protocol: "JonesDAO",
       icon: "/protocols/jonesdao.png",
-      address: "0x2AeDb0E9A6BB2571CD9651D3297f83e5C9379480",
+      address: "0xe3C1aad7A55B558CE1871910D468eb3b464c15C4",
       index: 20,
       apy: { type: "defillama", id: "dde58f35-2d08-4789-a641-1225b72c3147" },
       description:
