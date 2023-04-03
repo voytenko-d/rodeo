@@ -47,6 +47,7 @@ contract Token is ERC20Permit, Util {
             }
             uint256 amtToMint = totalSupply * weeklyPercent / 1e18;
             _mint(emissionsRecipient, amtToMint);
+            lastMintTime = block.timestamp;
             emit Mint(emissionsRecipient, amtToMint);
         }
     }
