@@ -12,6 +12,7 @@ import {
   formatError,
   formatNumber,
   formatUnits,
+  formatDate,
   ONE,
   parseUnits,
   runTransaction,
@@ -245,6 +246,9 @@ export default function FarmPosition() {
     if (!contracts || !address || !pool) return;
     const poolContract = contracts.pool(pool.info.address);
     const assetContract = contracts.asset(pool.info.asset);
+    const positionValues = router.query.id
+      ? await contracts.investor.positions(router.query.id)
+      : [0, 0, 0, parseUnits("0")];
     const data = {
       borrowRate: pool.data.rate,
       borrowMin: await poolContract.borrowMin(),
@@ -253,6 +257,10 @@ export default function FarmPosition() {
       assetAllowance: await assetContract.allowance(
         address,
         contracts.positionManager.address
+      ),
+      positionOutset: new Date(positionValues[3].toNumber() * 1000),
+      positionLifetime: parseInt(
+        Date.now() / 1000 - positionValues[3].toNumber()
       ),
     };
     setData(data);
@@ -927,12 +935,48 @@ export default function FarmPosition() {
             </div>
             <div className="farm-row mb-6">
               <div className="label-position">Net APR</div>
-              {formatNumber(newApy, 16)}%
+              <span className={newApy.lt(0) ? "text-red" : ""}>
+                {formatNumber(newApy, 16)}%
+              </span>
             </div>
             <div className="farm-row mb-6">
-              <div className="label-position">Daily</div>
+              <div className="label-position">Daily APR</div>
               {formatNumber(newApy.div(365), 16, 4)}%
             </div>
+            {position ? (
+              <div className="farm-row mb-6">
+                <div className="label-position">ROI</div>${" "}
+                {formatNumber(position.profitUsd)} (
+                {formatNumber(
+                  position.profitUsd
+                    .mul(ONE)
+                    .div(position.sharesUsd.sub(position.borrowUsd)),
+                  16
+                )}
+                %)
+              </div>
+            ) : null}
+            {data && data.positionLifetime > 0 ? (
+              <div className="farm-row mb-6">
+                <div className="label-position">Actual APR</div>
+                {formatNumber(
+                  position.profitUsd
+                    .mul(ONE)
+                    .div(position.sharesUsd.sub(position.borrowUsd))
+                    .mul(YEAR)
+                    .div(data.positionLifetime),
+                  16,
+                  4
+                )}
+                %
+              </div>
+            ) : null}
+            {data?.positionOutset ? (
+              <div className="farm-row">
+                <div className="label-position">Created</div>
+                {formatDate(data.positionOutset)}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

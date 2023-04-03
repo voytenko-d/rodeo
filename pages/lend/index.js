@@ -129,6 +129,12 @@ function Pool({ index, pool }) {
           </div>
         </div>
       </div>
+      {apr.gt(parseUnits("0.1")) ? (
+        <div className="pool-highapy">
+          This pool has a high APY because of high utilisation! It could use
+          more lenders ;)
+        </div>
+      ) : null}
     </div>
   );
 }

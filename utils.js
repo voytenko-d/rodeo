@@ -806,7 +806,7 @@ export function getContracts(signer, networkName) {
         "error Undercollateralized()",
         "error OverMaxBorrowFactor()",
         "function nextPosition() view returns (uint)",
-        "function positions(uint) view returns (address, address, address, uint, uint, uint)",
+        "function positions(uint) view returns (address, address, uint, uint, uint, uint, uint)",
       ],
       signer
     ),
@@ -1166,7 +1166,7 @@ export function usePositions() {
           .mul(90)
           .div(100);
         p.profitPercent = parseUnits("0");
-        if (p.amountUsd.gt("0")) {
+        if (p.amountUsd.gt("0") && p.sharesUsd.gt("0")) {
           p.profitPercent = p.profitUsd.mul(ONE).div(p.amountUsd);
           p.liquidationUsd = p.borrowUsd.mul(100).div(95);
           p.liquidationPercent = ONE.sub(

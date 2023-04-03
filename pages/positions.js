@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import Layout from "../components/layout";
 import {
+  ONE,
   YEAR,
   assets,
   formatNumber,
@@ -11,6 +12,7 @@ import {
   pools,
   runTransaction,
   strategies,
+  useApy,
   usePositions,
   useWeb3,
 } from "../utils";
@@ -136,14 +138,19 @@ export default function Positions() {
           <div>Strategy</div>
           <div>Value</div>
           <div>Borrow</div>
-          <div>ROI</div>
+          <div>ROI / APY</div>
           <div>Health</div>
           <div></div>
         </div>
       </div>
       <div className="farms">
         {positions.map((p, i) => (
-          <Position key={i} position={p} refetch={refetch} />
+          <Position
+            key={i}
+            position={p}
+            lendingApr={lending?.apr}
+            refetch={refetch}
+          />
         ))}
         {positions.length === 0 ? (
           <div
@@ -158,7 +165,7 @@ export default function Positions() {
   );
 }
 
-function Position({ position, refetch }) {
+function Position({ position, lendingApr, refetch }) {
   const { networkName, signer } = useWeb3();
   const pool = pools[networkName].find((p) => p.address === position.pool);
   const asset = assets[networkName][pool?.asset];
@@ -166,7 +173,18 @@ function Position({ position, refetch }) {
     (s) => s.index === position.strategy
   );
   const strategy = strategies[networkName][strategyIndex];
+  const apyData = useApy(strategy.apy);
   const [loading, setLoading] = useState(false);
+
+  let apy = parseUnits("0");
+  try {
+    apy = parseUnits((apyData.apy / 100).toFixed(6), 18)
+      .mul(position.leverage)
+      .div(ONE)
+      .sub(lendingApr.mul(position.leverage.sub(ONE)).div(ONE));
+  } catch (e) {
+    console.error("calc apy", e);
+  }
 
   async function onRemove(id) {
     try {
@@ -226,12 +244,10 @@ function Position({ position, refetch }) {
           </div>
         </div>
         <div>
-          <div className="label hide show-phone">ROI</div>
+          <div className="label hide show-phone">ROI / APY</div>
           <div>
             $ {formatNumber(position.profitUsd)}
-            <div style={{ opacity: "0.5" }}>
-              {formatNumber(position.profitPercent, 16)}%
-            </div>
+            <div style={{ opacity: "0.5" }}>{formatNumber(apy, 16)}%</div>
           </div>
         </div>
         <div>
