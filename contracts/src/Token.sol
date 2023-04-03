@@ -7,37 +7,37 @@ import {Util} from "./Util.sol";
 contract Token is ERC20Permit, Util {
     error NoMintAddress();
     error NoEmissionSent();
-    error NotPaused();
     error NotTimeYet(uint256 waitToMint);
+    error DeadlineExpired();
 
     uint256 public emissionRate; // percentage value, 1e18 = 100%
-
-    uint256 public lastMintTime;
     uint256 public decayPerWeek;
-    uint256 public lastAmtPerWeek;
     uint256 public deadline;
     uint256 public weeklyPercent;
     address public emissionsRecipient;
 
+    uint256 public lastMintTime;
+    uint256 public lastAmtPerWeek;
+
     event Mint(address indexed dst, uint256 amt);
-    event SetEmissions(address indexed owr, uint256 amt, uint256 dec);
+    event Configuration(address indexed owr, uint256 rat, uint256 dec, uint256 due);
+    event SetWeeklyPercent(uint256 wpc);
     event SetEmissionRecipient(address indexed owr, address emi);
 
     constructor(uint256 spl) ERC20Permit("Rodeo", "RODEO", 18) {
         exec[msg.sender] = true;
         _mint(msg.sender, spl);
-        paused = true;
     }
 
-    function emissionMint() external live {
+    function mintEmission() external {
         if (emissionsRecipient == address(0)) {
             revert NoMintAddress();
         }
         if (block.timestamp <= deadline) {
             uint256 timeElapsed = block.timestamp - lastMintTime;
-            uint256 decayPercent = timeElapsed * decayPerWeek / 604800;
+            uint256 decayPercent = timeElapsed * decayPerWeek / 1 weeks;
             lastAmtPerWeek = lastAmtPerWeek * (1e18 - decayPercent) / 1e18;
-            uint amtToMint = timeElapsed * lastAmtPerWeek / 604800;
+            uint amtToMint = timeElapsed * lastAmtPerWeek / 1 weeks;
             _mint(emissionsRecipient, amtToMint);
             lastMintTime = block.timestamp;
             emit Mint(emissionsRecipient, amtToMint);
@@ -46,30 +46,30 @@ contract Token is ERC20Permit, Util {
                 revert NotTimeYet(lastMintTime + 1 weeks - block.timestamp);
             }
             uint256 amtToMint = totalSupply * weeklyPercent / 1e18;
+            lastMintTime += 1 weeks;
             _mint(emissionsRecipient, amtToMint);
-            lastMintTime = block.timestamp;
             emit Mint(emissionsRecipient, amtToMint);
         }
     }
 
-    function setEmissions(uint256 _emissionRate, uint256 _decayPerWeek, uint256 _deadline, uint256 _weeklyPercent) external auth {
-        if (!paused) {
-            revert NotPaused();
-        }
+    function configure(uint256 _emissionRate, uint256 _decayPerWeek, uint256 _deadline) external auth {
         lastAmtPerWeek = _emissionRate;
         decayPerWeek = _decayPerWeek;
         deadline = _deadline;
+        lastMintTime = block.timestamp;
+        emit Configuration(msg.sender, _emissionRate, _decayPerWeek, _deadline);
+    }
+
+    function setWeeklyPercent(uint256 _weeklyPercent) external auth {
+        if (deadline < block.timestamp) {
+            revert DeadlineExpired();
+        }
         weeklyPercent = _weeklyPercent;
-        emit SetEmissions(msg.sender, _emissionRate, _decayPerWeek);
+        emit SetWeeklyPercent(_weeklyPercent);
     }
 
     function setEmissionsRecipient(address emi) external auth {
         emissionsRecipient = emi;
         emit SetEmissionRecipient(msg.sender, emi);
-    }
-
-    function activate() external auth {
-        lastMintTime = block.timestamp;
-        paused = false;
     }
 }

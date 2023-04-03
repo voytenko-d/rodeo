@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {Token} from "../RodeoToken.sol";
+import {Token} from "../Token.sol";
 import {Test} from "./utils/Test.sol";
-import {console} from "./utils/console.sol";
 
 contract TokenTest is Test {
     Token token;
@@ -19,34 +18,37 @@ contract TokenTest is Test {
         token.setEmissionsRecipient(address(this));
 
         // NOTE: emissionRate 1000, decayRate 5%
-        token.setEmissions(1000, 5e16, block.timestamp + 604800*5, 1e16);
-        token.activate();
-        vm.warp(block.timestamp + 86400);
+        token.configure(1000, 5e16, block.timestamp + 604800 * 5);
+        token.setWeeklyPercent(1e16);
 
-        uint balanceBefore = token.balanceOf(address(this));
+        vm.warp(block.timestamp + 86400);
         // decaypercent: 86400 * 5e16 / 604800 = 7.1418571e15
         // lastAmtPerWeek: 1000 * (1e18-decayPercent) / 1e18 = 992
         // amtToMint: 86400 * lastAmtPerWeek / 604800
+        uint balanceBefore = token.balanceOf(address(this));
         vm.expectEmit(true, true, false, false);
         emit Mint(address(this), 141);
-        token.emissionMint();
+        token.mintEmission();
         uint balanceAfter = token.balanceOf(address(this));
         assertEq(balanceAfter - balanceBefore, 141);
 
         vm.warp(block.timestamp + 86400);
-        balanceBefore = token.balanceOf(address(this));
-        vm.expectEmit(true, true, true, true);
-        emit Mint(address(this), 140);
-        token.emissionMint();
+        balanceBefore = balanceAfter;
+        token.mintEmission();
         balanceAfter = token.balanceOf(address(this));
         assertEq(balanceAfter - balanceBefore, 140);
 
         vm.warp(block.timestamp + 604800*7);
         uint tokenToBeMinted = token.totalSupply() / 100;
-        balanceBefore = token.balanceOf(address(this));
-        vm.expectEmit(true, true, false, false);
-        emit Mint(address(this), tokenToBeMinted);
-        token.emissionMint();
+        balanceBefore = balanceAfter;
+        token.mintEmission();
+        balanceAfter = token.balanceOf(address(this));
+        assertEq(balanceAfter - balanceBefore, tokenToBeMinted);
+
+        // allow to mint couple of times
+        tokenToBeMinted = token.totalSupply() / 100;
+        balanceBefore = balanceAfter;
+        token.mintEmission();
         balanceAfter = token.balanceOf(address(this));
         assertEq(balanceAfter - balanceBefore, tokenToBeMinted);
     }
