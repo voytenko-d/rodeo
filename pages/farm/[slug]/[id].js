@@ -410,15 +410,6 @@ export default function FarmPosition() {
     try {
       // TODO remove after alpha
       await checkWhitelist(signer, address);
-      if (
-        !position &&
-        (parsedAmount.lt(parseUnits("10", asset.decimals)) ||
-          parsedAmount.gt(parseUnits("10000", asset.decimals)))
-      ) {
-        throw new Error(
-          "During BETA, amount needs to be between $10 and $10000"
-        );
-      }
 
       setLoading(true);
       if (!position && !editBorrow.eq("0") && editBorrow.lt(data.borrowMin)) {

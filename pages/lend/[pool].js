@@ -253,14 +253,6 @@ export default function LendPool() {
     try {
       // TODO remove after alpha
       await checkWhitelist(provider, address);
-      if (
-        parsedAmount.lt(parseUnits("10", asset.decimals)) ||
-        parsedAmount.gt(parseUnits("10000", asset.decimals))
-      ) {
-        throw new Error(
-          "During BETA, amount needs to be between $10 and $10000"
-        );
-      }
 
       setLoading(true);
       const poolContract = contracts.pool(pool.address);
