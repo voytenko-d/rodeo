@@ -11,7 +11,7 @@ import {Multisig} from "../support/Multisig.sol";
 import {StrategyHelper, StrategyHelperMulti} from "../StrategyHelper.sol";
 import {PositionManager, ERC721TokenReceiver} from "../PositionManager.sol";
 import {OracleUniswapV2} from "../OracleUniswapV2.sol";
-import {StrategyVela} from "../StrategyVela.sol";
+import {StrategyMycelium} from "../StrategyMycelium.sol";
 
 import {console} from "../test/utils/console.sol";
 
@@ -33,10 +33,11 @@ contract Debug is DSTest, ERC721TokenReceiver {
 
         /*
         // DEPLOY NEW STRATEGY
-        StrategyVela s = new StrategyVela(
+        StrategyMycelium s = new StrategyMycelium(
             address(strategyHelper),
-            0x5957582F020301a2f732ad17a69aB2D8B2741241,
-            0x4e0D4a5A5b4FAf5C2eCc1C63C8d19BB0804A96F1,
+            0xd98d8e458F7aD22DD3C1d7A8B35C74005eb52b0b,
+            0xd98d8e458F7aD22DD3C1d7A8B35C74005eb52b0b,
+            0x9F4bC1Ef5319aF843E587a3Bfdb3B228009F035f,
             usdc
         );
         //vm.stopPrank();
@@ -100,11 +101,13 @@ contract Debug is DSTest, ERC721TokenReceiver {
         assets[2] = usdc;
         StrategyHelper(strategyHelper).setPath(0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8, usdc, shm, abi.encode(assets));
         */
+
         vm.stopPrank();
-        vm.startPrank(0x5859731D7b7e413A958eA1cDb9020C611b016395);
+        vm.startPrank(0x20dE070F1887f82fcE2bdCf5D6d9874091e6FAe9);
         address(0x5e4d7F61cC608485A2E4F105713D26D58a9D0cF6).call(
-            hex"08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000147472616e73616374696f6e207265766572746564000000000000000000000000"
+            hex"d79c2f7a00000000000000000000000020de070f1887f82fce2bdcf5d6d9874091e6fae90000000000000000000000000032f5e1520a66c6e572e96a11fbf54aea26f9be00000000000000000000000000000000000000000000000000000000000000190000000000000000000000000000000000000000000000000000000002faf080000000000000000000000000000000000000000000000000000000000098968000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000032"
         );
+        //*/
 
         /*
         OracleChainlinkETH owst = new OracleChainlinkETH(0xB1552C5e96B312d0Bf8b554186F846C40614a540, 0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612);

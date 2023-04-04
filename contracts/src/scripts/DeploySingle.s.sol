@@ -14,7 +14,7 @@ import {PartnerProxy} from "../PartnerProxy.sol";
 import {OracleUniswapV2} from "../OracleUniswapV2.sol";
 import {LiquidityMining} from "../LiquidityMining.sol";
 import {console} from "../test/utils/console.sol";
-import {StrategyVela} from "../StrategyVela.sol";
+import {StrategyMycelium} from "../StrategyMycelium.sol";
 
 interface Hevm {
     function warp(uint256) external;
@@ -75,19 +75,19 @@ contract DeploySingle {
 
         vm.startBroadcast();
 
-        /*
-        StrategyVela s = new StrategyVela(
+        StrategyMycelium s = new StrategyMycelium(
             address(strategyHelper),
-            0x5957582F020301a2f732ad17a69aB2D8B2741241,
-            0x4e0D4a5A5b4FAf5C2eCc1C63C8d19BB0804A96F1,
+            0xd98d8e458F7aD22DD3C1d7A8B35C74005eb52b0b,
+            0xd98d8e458F7aD22DD3C1d7A8B35C74005eb52b0b,
+            0x9F4bC1Ef5319aF843E587a3Bfdb3B228009F035f,
             usdc
         );
         s.file("exec", investorActor);
         s.file("exec", address(investor));
         s.file("exec", address(multisig));
         s.file("exec", address(deployer));
-        multisig.add(address(investor), 0, abi.encodeWithSignature("setStrategy(uint256,address)", 24, address(s)));
-        */
+        multisig.add(address(investor), 0, abi.encodeWithSignature("setStrategy(uint256,address)", investor.nextStrategy(), address(s)));
+        //*/
 
         /*
         StrategyJonesUsdc s = new StrategyJonesUsdc(

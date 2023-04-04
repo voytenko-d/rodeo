@@ -55,6 +55,14 @@ const strategies = {
       apy: { type: "defillama", id: "825688c0-c694-4a6b-8497-177e425b7348" },
     }, // GMXGLP
     {
+      address: "0x82bE2F89460581F20A4964Fd91c3376d9952a9FF",
+      apy: { type: "vela", id: "vlp" },
+    }, // VelaVLP
+    {
+      address: "0x8D8627f0bb5A73035678289E5692766EDce341eA",
+      apy: { type: "defillama", id: "2ed078af-3994-4383-9587-eeea297eff78" },
+    }, // MyceliumMLP
+    {
       address: "0xCE0488a9FfD70156d8914C02D95fA320DbBE93Ab",
       apy: {
         type: "traderjoe",

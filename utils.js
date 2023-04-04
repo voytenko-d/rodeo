@@ -25,6 +25,8 @@ export const DONUT_COLORS = {
   1: "#eda959",
   2: "#f5cea0",
   3: "#fcf3e7",
+  4: "#fcf3e7",
+  5: "#fcf3e7",
 };
 
 export const ADDRESSES = {
@@ -83,6 +85,13 @@ export const assets = {
       decimals: 6,
       icon: "/assets/usdt.svg",
     },
+    "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1": {
+      name: "Dai",
+      symbol: "DAI",
+      address: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+      decimals: 18,
+      icon: "/assets/dai.svg",
+    },
     "0x539bdE0d7Dbd336b79148AA742883198BBF60342": {
       name: "Magic",
       symbol: "MAGIC",
@@ -134,6 +143,11 @@ export const tokens = {
     name: "stETH",
     description:
       "Lido’s Staked Ethereum, also known as stETH, is a digital asset representing ETH staked with Lido Finance, combining staking rewards with the value of the initial deposit. ",
+  },
+  "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1": {
+    name: "DAI",
+    description:
+      "Dai is a stable, decentralized currency that does not discriminate. Any individual or business can realize the advantages of digital money.",
   },
   "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9": {
     name: "USDT",
@@ -276,6 +290,41 @@ export const strategies = {
         {
           ratio: 100,
           address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+        },
+      ],
+    },
+    {
+      name: "MLP",
+      protocol: "Mycelium",
+      icon: "/protocols/mycelium.svg",
+      address: "0x8D8627f0bb5A73035678289E5692766EDce341eA",
+      index: 25,
+      apy: { type: "defillama", id: "2ed078af-3994-4383-9587-eeea297eff78" },
+      description:
+        "Uses USDC to mint Mycelium MLP and stakes it for ETH fees and esMYC rewards, compounding over time. This mean you will have ~50% exposure to BTC and ETH.",
+      slug: "mycelium-mlp",
+      isNew: true,
+      hidden: true,
+      assets: [
+        {
+          ratio: 30.8,
+          address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+        },
+        {
+          ratio: 25.6,
+          address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+        },
+        {
+          ratio: 18.8,
+          address: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+        },
+        {
+          ratio: 16.4,
+          address: "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f",
+        },
+        {
+          ratio: 8.4,
+          address: "Other",
         },
       ],
     },
@@ -944,6 +993,9 @@ export function formatError(e) {
   }
   if (message.includes("cooldown duration not yet passed")) {
     return "Vela VLP on cooldown, wait 15 minutes and try again";
+  }
+  if (message.includes("MlpManager: cooldown duration not yet passed")) {
+    return "Mycelium MLP on cooldown, wait 15 minutes and try again";
   }
   if (message.includes("GlpManager: cooldown duration")) {
     return "GMX GLP on cooldown, wait 15 minutes and try again";

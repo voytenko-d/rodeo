@@ -44,6 +44,7 @@
 - StrategyJoe ETH/USDC https://arbiscan.io/address/0xCE0488a9FfD70156d8914C02D95fA320DbBE93Ab
 - StrategyJoe MAGIC/ETH https://arbiscan.io/address/0xbA8A58Fd6fbc9fAcB8BCf349C94B87717a4BC00f
 - StrategyVela VLP https://arbiscan.io/address/0x82bE2F89460581F20A4964Fd91c3376d9952a9FF
+- StrategyMycelium MLP https://arbiscan.io/address/0x8D8627f0bb5A73035678289E5692766EDce341eA
 
 **Ops**
 
