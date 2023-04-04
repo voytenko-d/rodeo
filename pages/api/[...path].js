@@ -170,6 +170,22 @@ route(
   })
 );
 
+route(
+  "/apy/vela",
+  cached(async (req) => {
+    const usdc = "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8";
+    const vault = "0x5957582F020301a2f732ad17a69aB2D8B2741241";
+    const res = await fetch(
+      "https://vela-public-server-prod-qxq2l.ondigitalocean.app/market/vlp-apr/42161"
+    );
+    const apr = (await res.json()).VLP_APR;
+    const tvl = (await call(usdc, "balanceOf-address-uint256", vault))
+      .div(parseUnits("1", 6))
+      .toNumber();
+    return { apy: aprToApy(apr / 100) * 100, tvl: tvl };
+  })
+);
+
 route("/tvl", async (req, res) => {
   return (
     await sql(
@@ -238,6 +254,10 @@ route("/liquidations", (req, res) => {
 });
 
 // UTILS //////////////////////////////////////////////////////////////////////
+
+function aprToApy(rate) {
+  return Math.pow(rate / 365 + 1, 365) - 1;
+}
 
 function route(path, handler) {
   routes.push([path, handler]);

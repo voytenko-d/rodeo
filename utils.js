@@ -267,7 +267,7 @@ export const strategies = {
       icon: "/protocols/vela.png",
       address: "0x82bE2F89460581F20A4964Fd91c3376d9952a9FF",
       index: 24,
-      apy: { type: "defillama", id: "825688c0-c694-4a6b-8497-177e425b7348" },
+      apy: { type: "vela", id: "vlp" },
       description: "Uses USDC to mint Vela VLP earning protocol trading fees.",
       slug: "vela-vlp",
       isNew: true,
@@ -1253,6 +1253,10 @@ export async function checkWhitelist(provider, address) {
 
 export function capitalize(string) {
   return string[0].toUpperCase() + string.slice(1);
+}
+
+export function aprToApy(rate) {
+  return Math.pow(rate / 365 + 1, 365) - 1;
 }
 
 export const logoSquare = `<svg width="48" height="48" viewBox="0 0 164 164" fill="none" xmlns="http://www.w3.org/2000/svg">
