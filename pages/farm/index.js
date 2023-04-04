@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ethers } from "ethers";
 import {
   bnMin,
@@ -27,6 +27,13 @@ export default function Farms() {
   const { networkName } = useWeb3();
   const { data: pools } = usePools();
   const { data: positions } = usePositions();
+  const showHidden = useMemo(
+    () =>
+      typeof window !== "undefined"
+        ? window.location.hash === "#hidden"
+        : false,
+    []
+  );
   const activePositions = positions.filter((p) => p.shares.gt(0));
   const shares = activePositions.reduce(
     (t, p) => t.add(p.sharesUsd),
@@ -122,7 +129,7 @@ export default function Farms() {
       </div>
       <div className="farms">
         {(strategies[networkName] || [])
-          .filter((s) => !s.hidden)
+          .filter((s) => !s.hidden || showHidden)
           .map((s, i) => (
             <Farm
               key={s.name}

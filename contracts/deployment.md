@@ -26,7 +26,9 @@
 - OracleUniswapV2 PLS https://arbiscan.io/address/0x90DAc5C0073D9406aB25F2eDB0d91a8514e871Ad
 - OracleUniswapV2 MAGIC https://arbiscan.io/address/0xb7ad108628b8876f68349d4f150f33e97f5dae03
 - OracleBalancerLPStable wstETH/ETH https://arbiscan.io/address/0x198c2CC46a17E023Fa7c76909E4a6858FbC87B71
-- OracleChainlinkETH wstETH https://arbiscan.io/0xDde8d7C6BEeb9D59eFAEee2a2Be2BA500E451d5d
+- OracleChainlinkETH wstETH https://arbiscan.io/address/0xDde8d7C6BEeb9D59eFAEee2a2Be2BA500E451d5d
+- OracleBalancer5050ETH VSTA https://arbiscan.io/address/0x51A82477154d8ae7c97784F141ab2B56088c435d
+- OracleTWAP VSTA https://arbiscan.io/address/0x8474E2C497A1bD0Cda16912C5BC91AB9F88056BB
 
 **Strategies**
 
@@ -45,6 +47,7 @@
 - StrategyJoe MAGIC/ETH https://arbiscan.io/address/0xbA8A58Fd6fbc9fAcB8BCf349C94B87717a4BC00f
 - StrategyVela VLP https://arbiscan.io/address/0x82bE2F89460581F20A4964Fd91c3376d9952a9FF
 - StrategyMycelium MLP https://arbiscan.io/address/0x8D8627f0bb5A73035678289E5692766EDce341eA
+- StrategyBalancer VSTA/ETH https://arbiscan.io/address/0xc45a107f742B7dA6E9e48c5cc29ead668AF295F7
 
 **Ops**
 

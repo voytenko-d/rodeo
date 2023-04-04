@@ -99,6 +99,13 @@ export const assets = {
       decimals: 18,
       icon: "/assets/magic.png",
     },
+    "0xa684cd057951541187f288294a1e1C2646aA2d24": {
+      name: "Vesta",
+      symbol: "VSTA",
+      address: "0xa684cd057951541187f288294a1e1C2646aA2d24",
+      decimals: 18,
+      icon: "/assets/vsta.png",
+    },
   },
   "arbitrum-rinkeby": {},
   localhost: {
@@ -168,6 +175,11 @@ export const tokens = {
     name: "MAGIC",
     description:
       "Treasure is the decentralized gaming ecosystem bringing games and players together through MAGIC.",
+  },
+  "0xa684cd057951541187f288294a1e1C2646aA2d24": {
+    name: "VSTA",
+    description:
+      "Vesta Finance allows you to borrow collateralized stablecoin VST against supported crypto assets with low interest rate.",
   },
 };
 
@@ -425,6 +437,29 @@ export const strategies = {
         {
           ratio: 33,
           address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+        },
+      ],
+    },
+    {
+      name: "VSTA/ETH",
+      protocol: "Balancer",
+      icon: "/protocols/balancer.svg",
+      address: "0xc45a107f742B7dA6E9e48c5cc29ead668AF295F7",
+      index: 26,
+      apy: { type: "defillama", id: "9a349ffb-302f-41a5-b660-1bac00449d66" },
+      description:
+        "Mints balancer LP tokens and stakes them in the reward gauge. Collects trading fees and autocompounds rewards.",
+      slug: "bal-vsta-eth",
+      isNew: true,
+      hidden: true,
+      assets: [
+        {
+          ratio: 50,
+          address: "0xa684cd057951541187f288294a1e1C2646aA2d24",
+        },
+        {
+          ratio: 50,
+          address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
         },
       ],
     },

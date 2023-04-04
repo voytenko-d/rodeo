@@ -81,6 +81,10 @@ const strategies = {
       apy: { type: "defillama", id: "78b92cfe-6d41-46d5-af95-ed1005a1840b" },
     }, // Balancer stETH/ETH
     {
+      address: "0xc45a107f742B7dA6E9e48c5cc29ead668AF295F7",
+      apy: { type: "defillama", id: "9a349ffb-302f-41a5-b660-1bac00449d66" },
+    }, // Balancer VSTA/ETH
+    {
       address: "0x390358DEf53f2316671ed3B13D4F4731618Ff6A3",
       apy: { type: "defillama", id: "872bc9c7-5c79-479b-a654-e72b74e4c810" },
     }, // Balancer WBTC/ETH/USDC
@@ -112,6 +116,7 @@ const strategies = {
 const oracles = [
   "0x90DAc5C0073D9406aB25F2eDB0d91a8514e871Ad", // PLS
   "0xb7ad108628b8876f68349d4f150f33e97f5dae03", // MAGIC
+  "0x8474E2C497A1bD0Cda16912C5BC91AB9F88056BB", // VSTA
 ];
 const defaultBlock = {
   1337: 1,

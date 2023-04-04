@@ -26,7 +26,7 @@ poolinfo:
 		-vvvv --fork-url $(RPC_URL_MAINNET)
 
 call:
-	cast call --rpc-url=$(RPC_URL_MAINNET) 0x9D6A853Da8BF51386240Ad1ed19E13C48dF3a2A7 "originationFee() returns (uint256)"
+	cast call --rpc-url=$(RPC_URL_MAINNET) 0xc61ff48f94d801c1ceface0289085197b5ec44f0 "getNormalizedWeights() returns (uint256[])"
 
 debug:
 	forge script src/scripts/Debug.s.sol:Debug \

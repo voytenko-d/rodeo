@@ -11,10 +11,10 @@ import {Configurator} from "../support/Configurator.sol";
 import {Multisig} from "../support/Multisig.sol";
 import {StrategyHelper, StrategyHelperMulti} from "../StrategyHelper.sol";
 import {PartnerProxy} from "../PartnerProxy.sol";
-import {OracleUniswapV2} from "../OracleUniswapV2.sol";
 import {LiquidityMining} from "../LiquidityMining.sol";
 import {console} from "../test/utils/console.sol";
-import {StrategyMycelium} from "../StrategyMycelium.sol";
+import {StrategyBalancer} from "../StrategyBalancer.sol";
+import {OracleTWAP} from "../OracleTWAP.sol";
 
 interface Hevm {
     function warp(uint256) external;
@@ -75,12 +75,14 @@ contract DeploySingle {
 
         vm.startBroadcast();
 
-        StrategyMycelium s = new StrategyMycelium(
-            address(strategyHelper),
-            0xd98d8e458F7aD22DD3C1d7A8B35C74005eb52b0b,
-            0xd98d8e458F7aD22DD3C1d7A8B35C74005eb52b0b,
-            0x9F4bC1Ef5319aF843E587a3Bfdb3B228009F035f,
-            usdc
+
+        /*
+        StrategyBalancer s = new StrategyBalancer(
+            strategyHelper,
+            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
+            0xb08E16cFc07C684dAA2f93C70323BAdb2A6CBFd2,
+            0xC61ff48f94D801c1ceFaCE0289085197B5ec44F0,
+            weth
         );
         s.file("exec", investorActor);
         s.file("exec", address(investor));
