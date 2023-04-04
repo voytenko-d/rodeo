@@ -14,7 +14,7 @@ import {PartnerProxy} from "../PartnerProxy.sol";
 import {OracleUniswapV2} from "../OracleUniswapV2.sol";
 import {LiquidityMining} from "../LiquidityMining.sol";
 import {console} from "../test/utils/console.sol";
-import {StrategyJonesUsdc} from "../StrategyJonesUsdc.sol";
+import {StrategyVela} from "../StrategyVela.sol";
 
 interface Hevm {
     function warp(uint256) external;
@@ -59,7 +59,7 @@ contract DeploySingle {
         //address gmx = 0xfc5A1A6EB076a2C7aD06eD22C90d7E710E35ad0a;
         //address umami = 0x1622bF67e6e5747b81866fE0b85178a93C7F86e3;
 
-        address investor = 0x8accf43Dd31DfCd4919cc7d65912A475BfA60369;
+        Investor investor = Investor(0x8accf43Dd31DfCd4919cc7d65912A475BfA60369);
         address strategyHelper = 0x72f7101371201CeFd43Af026eEf1403652F115EE;
         address investorActor = 0x9D6A853Da8BF51386240Ad1ed19E13C48dF3a2A7;
         address poolUsdc = 0x0032F5E1520a66C6E572e96A11fBF54aea26f9bE;
@@ -74,6 +74,20 @@ contract DeploySingle {
         Multisig multisig = Multisig(payable(0xaB7d6293CE715F12879B9fa7CBaBbFCE3BAc0A5a));
 
         vm.startBroadcast();
+
+        /*
+        StrategyVela s = new StrategyVela(
+            address(strategyHelper),
+            0x5957582F020301a2f732ad17a69aB2D8B2741241,
+            0x4e0D4a5A5b4FAf5C2eCc1C63C8d19BB0804A96F1,
+            usdc
+        );
+        s.file("exec", investorActor);
+        s.file("exec", address(investor));
+        s.file("exec", address(multisig));
+        s.file("exec", address(deployer));
+        multisig.add(address(investor), 0, abi.encodeWithSignature("setStrategy(uint256,address)", 24, address(s)));
+        */
 
         /*
         StrategyJonesUsdc s = new StrategyJonesUsdc(

@@ -246,9 +246,10 @@ export default function FarmPosition() {
     if (!contracts || !address || !pool) return;
     const poolContract = contracts.pool(pool.info.address);
     const assetContract = contracts.asset(pool.info.asset);
-    const positionValues = router.query.id
-      ? await contracts.investor.positions(router.query.id)
-      : [0, 0, 0, parseUnits("0")];
+    const positionValues =
+      router.query.id && router.query.id !== "new"
+        ? await contracts.investor.positions(router.query.id)
+        : [0, 0, 0, parseUnits("0")];
     const data = {
       borrowRate: pool.data.rate,
       borrowMin: await poolContract.borrowMin(),
@@ -956,7 +957,7 @@ export default function FarmPosition() {
                 %)
               </div>
             ) : null}
-            {data && data.positionLifetime > 0 ? (
+            {data && data.positionLifetime > 0 && position ? (
               <div className="farm-row mb-6">
                 <div className="label-position">Actual APR</div>
                 {formatNumber(

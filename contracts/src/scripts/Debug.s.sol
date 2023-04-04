@@ -10,8 +10,8 @@ import {Strategy} from "../Strategy.sol";
 import {Multisig} from "../support/Multisig.sol";
 import {StrategyHelper, StrategyHelperMulti} from "../StrategyHelper.sol";
 import {PositionManager, ERC721TokenReceiver} from "../PositionManager.sol";
-import {StrategyGMXGLP} from "../StrategyGMXGLP.sol";
 import {OracleUniswapV2} from "../OracleUniswapV2.sol";
+import {StrategyVela} from "../StrategyVela.sol";
 
 import {console} from "../test/utils/console.sol";
 
@@ -33,24 +33,25 @@ contract Debug is DSTest, ERC721TokenReceiver {
 
         /*
         // DEPLOY NEW STRATEGY
-        StrategyJoe s = new StrategyJoe(
+        StrategyVela s = new StrategyVela(
             address(strategyHelper),
-            0x7BFd7192E76D950832c77BB412aaE841049D8D9B,
-            0x7eC3717f70894F6d9BA0be00774610394Ce006eE,
-            15,
-            6
+            0x5957582F020301a2f732ad17a69aB2D8B2741241,
+            0x4e0D4a5A5b4FAf5C2eCc1C63C8d19BB0804A96F1,
+            usdc
         );
         //vm.stopPrank();
         //vm.startPrank(0xa5c1c5a67Ba16430547FEA9D608Ef81119bE1876);
         //address(0x97247DE3fe7c5aA718b2be4d454E42de11eAfc6d).call(abi.encodeWithSignature("whitelistAdd(address)", address(s)));
         //address(0x4E5Cf54FdE5E1237e80E87fcbA555d829e1307CE).call(abi.encodeWithSignature("setWhitelist(address)", 0x97247DE3fe7c5aA718b2be4d454E42de11eAfc6d));
-        //vm.stopPrank();
-        //vm.startPrank(deployer);
         s.file("slippage", 200);
         s.file("exec", investorActor);
         s.file("exec", address(investor));
+        vm.stopPrank();
+        vm.startPrank(address(multisig));
         uint256 sid = investor.nextStrategy();
         investor.setStrategy(sid, address(s));
+        vm.stopPrank();
+        vm.startPrank(deployer);
         IERC20(usdc).approve(address(investor), type(uint256).max);
         investor.earn(deployer, poolUsdc, sid, 50e6, 0, "");
         s.earn();
@@ -61,7 +62,9 @@ contract Debug is DSTest, ERC721TokenReceiver {
         console.log("value", s.rate(s.totalShares())/1e16);
         vm.warp(block.timestamp+3600);
         s.earn();
-        investor.edit(investor.nextPosition()-2, 0-int256(s.totalShares())/2, 0, "");
+        uint256 pid = investor.nextPosition()-2;
+        (,,,,,uint256 sha,) = investor.positions(pid);
+        investor.edit(pid, 0-int256(sha), 0, "");
         console.log("value", s.rate(s.totalShares())/1e16);
         //*/
 

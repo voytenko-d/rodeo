@@ -262,6 +262,24 @@ export const strategies = {
       ],
     },
     {
+      name: "VLP",
+      protocol: "Vela",
+      icon: "/protocols/vela.png",
+      address: "0x82bE2F89460581F20A4964Fd91c3376d9952a9FF",
+      index: 24,
+      apy: { type: "defillama", id: "825688c0-c694-4a6b-8497-177e425b7348" },
+      description: "Uses USDC to mint Vela VLP earning protocol trading fees.",
+      slug: "vela-vlp",
+      isNew: true,
+      hidden: true,
+      assets: [
+        {
+          ratio: 100,
+          address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+        },
+      ],
+    },
+    {
       name: "ETH/USDC",
       protocol: "TraderJoe",
       icon: "/protocols/traderjoe.png",
@@ -923,6 +941,9 @@ export function formatError(e) {
   }
   if (message.includes("user rejected transaction")) {
     return "You cancelled the transaction";
+  }
+  if (message.includes("cooldown duration not yet passed")) {
+    return "Vela VLP on cooldown, wait 15 minutes and try again";
   }
   if (message.includes("GlpManager: cooldown duration")) {
     return "GMX GLP on cooldown, wait 15 minutes and try again";
