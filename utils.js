@@ -500,6 +500,8 @@ export const strategies = {
       description:
         "Invests funds into Camelot's ETH/USDC LP pool and stakes it in the NFTPool for GRAIL rewards. Rewards are then auto-compounded into more LP tokens",
       slug: "camelot-eth-usdc",
+      isNew: true,
+      hidden: true,
       assets: [
         {
           ratio: 50,
