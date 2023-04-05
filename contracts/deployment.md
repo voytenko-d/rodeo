@@ -24,7 +24,7 @@
 - OracleUniswapV3 GMX * https://arbiscan.io/address/0xD51E766137ca16bE4DA80678be05902C5AB53663
 - OracleUniswapV3 UMAMI * https://arbiscan.io/address/0xBfd768A096c0c0A29B7F3f5bCbae0674fE7A4F33
 - OracleUniswapV2 PLS https://arbiscan.io/address/0x90DAc5C0073D9406aB25F2eDB0d91a8514e871Ad
-- OracleUniswapV2 MAGIC https://arbiscan.io/address/0xb7ad108628b8876f68349d4f150f33e97f5dae03
+- OracleUniswapV2 MAGIC https://arbiscan.io/address/0xb7AD108628B8876f68349d4F150f33e97f5DAE03
 - OracleBalancerLPStable wstETH/ETH https://arbiscan.io/address/0x198c2CC46a17E023Fa7c76909E4a6858FbC87B71
 - OracleChainlinkETH wstETH https://arbiscan.io/address/0xDde8d7C6BEeb9D59eFAEee2a2Be2BA500E451d5d
 - OracleBalancer5050ETH VSTA https://arbiscan.io/address/0x51A82477154d8ae7c97784F141ab2B56088c435d

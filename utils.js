@@ -391,6 +391,7 @@ export const strategies = {
       description:
         "Invests funds into TraderJoe's V2 MAGIC/ETH LP pool. Fees are then auto-compounded into more LP tokens",
       slug: "traderjoe-magic-eth",
+      slippage: 150,
       isNew: true,
       hidden: true,
       assets: [
@@ -535,7 +536,6 @@ export const strategies = {
       description:
         "Invests funds into Camelot's LP pool and stakes it in the NFTPool for GRAIL rewards. Rewards are then auto-compounded into more LP tokens",
       slug: "camelot-grail-usdc",
-      slippage: 150,
       isNew: true,
       hidden: true,
       assets: [

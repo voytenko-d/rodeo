@@ -59,17 +59,18 @@ contract DeploySingle {
         //address sushi = 0xd4d42F0b6DEF4CE0383636770eF773390d85c61A;
         //address gmx = 0xfc5A1A6EB076a2C7aD06eD22C90d7E710E35ad0a;
         //address umami = 0x1622bF67e6e5747b81866fE0b85178a93C7F86e3;
-        address grail = 0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8;
+        //address grail = 0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8;
+        address magic = 0x539bdE0d7Dbd336b79148AA742883198BBF60342;
 
         Investor investor = Investor(0x8accf43Dd31DfCd4919cc7d65912A475BfA60369);
         address strategyHelper = 0x72f7101371201CeFd43Af026eEf1403652F115EE;
         address investorActor = 0x9D6A853Da8BF51386240Ad1ed19E13C48dF3a2A7;
         //address poolUsdc = 0x0032F5E1520a66C6E572e96A11fBF54aea26f9bE;
-        //address shss = 0x4cA2a8cC7B1110CF3961D1F4AAB195d3Ab61BF9b;
+        address shss = 0x4cA2a8cC7B1110CF3961D1F4AAB195d3Ab61BF9b;
         //address shv3 = 0xaFF008DD677d2a9fd74D27B26Efc10A8e3f7BDaD;
         //address shb = 0xb1Ae664e23332eE54e0C029937e26058a08708cC;
         //address shc = 0x5C0B2558e38410ee11C942694914F1780F504f82;
-        address shCam = 0x7FC67A688F464538259E3F559dc63F00D64F3c0b;
+        //address shCam = 0x7FC67A688F464538259E3F559dc63F00D64F3c0b;
 
         //address admin = 0x5d52C98D4B2B9725D9a1ea3CcAf44871a34EFB96;
         address deployer = 0x20dE070F1887f82fcE2bdCf5D6d9874091e6FAe9;
@@ -90,7 +91,9 @@ contract DeploySingle {
         s.file("exec", address(deployer));
         multisig.add(address(investor), 0, abi.encodeWithSignature("setStrategy(uint256,address)", investor.nextStrategy(), address(s)));
         //*/
-        //multisig.add(address(strategyHelper), 0, abi.encodeWithSignature("setPath(address,address,address,bytes)", grail,weth, shCam, abi.encodePacked(grail, usdc, weth)));
+        //multisig.add(address(strategyHelper), 0, abi.encodeWithSignature("setOracle(address,address)", magic, 0xb7AD108628B8876f68349d4F150f33e97f5DAE03));
+        //bytes memory b = abi.encodePacked(magic, weth, usdc);
+        //multisig.add(address(strategyHelper), 0, abi.encodeWithSignature("setPath(address,address,address,bytes)", magic, usdc, shss, b));
 
         /*
         StrategyJonesUsdc s = new StrategyJonesUsdc(
