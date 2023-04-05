@@ -23,9 +23,9 @@ contract OracleTWAP {
     }
 
     function latestAnswer() external view returns (int256) {
-      require(block.timestamp < lastTimestamp + (updateInterval * 2), "stale price");
-      int256 price = (prices[0] + prices[1] + prices[2] + prices[3]) / 4;
-      return price;
+        require(block.timestamp < lastTimestamp + (updateInterval * 2), "stale price");
+        int256 price = (prices[0] + prices[1] + prices[2] + prices[3]) / 4;
+        return price;
     }
 
     function update() external {

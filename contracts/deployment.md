@@ -29,6 +29,8 @@
 - OracleChainlinkETH wstETH https://arbiscan.io/address/0xDde8d7C6BEeb9D59eFAEee2a2Be2BA500E451d5d
 - OracleBalancer5050ETH VSTA https://arbiscan.io/address/0x51A82477154d8ae7c97784F141ab2B56088c435d
 - OracleTWAP VSTA https://arbiscan.io/address/0x8474E2C497A1bD0Cda16912C5BC91AB9F88056BB
+- OracleUniswapV2Usdc GRAIL https://arbiscan.io/address/0x63dd6107bbF26d03a0eF1f6EeC2aCe28C9FE37f0
+- OracleTWAP GRAIL https://arbiscan.io/address/0x60B686b9EF4A3f077c8643Ac9939486f3A336672
 
 **Strategies**
 
@@ -48,6 +50,7 @@
 - StrategyVela VLP https://arbiscan.io/address/0x82bE2F89460581F20A4964Fd91c3376d9952a9FF
 - StrategyMycelium MLP https://arbiscan.io/address/0x8D8627f0bb5A73035678289E5692766EDce341eA
 - StrategyBalancer VSTA/ETH https://arbiscan.io/address/0xc45a107f742B7dA6E9e48c5cc29ead668AF295F7
+- StrategyCamelot ETH/USDC https://arbiscan.io/address/0x91308b8d5e2352C7953D88A55D1012D68bF1EfD0
 
 **Ops**
 

@@ -93,6 +93,10 @@ const strategies = {
       apy: { type: "defillama", id: "429bbfd9-1496-4871-9406-b64f3d05f38d" },
     }, // Curve WBTC/ETH/USDT
     {
+      address: "0x91308b8d5e2352C7953D88A55D1012D68bF1EfD0",
+      apy: { type: "defillama", id: "4606a6d6-445d-4338-81bf-e96c38196bcb" },
+    }, // Camelot ETH/USDC
+    {
       address: "0xcF03B33851F088d58E921d8aB5D60Dc1c3238758",
       apy: { type: "defillama", id: "5f1e249f-1ac4-48a3-8cba-f13be346cd99" },
     }, // KyberSwap wstETH/ETH
@@ -117,6 +121,7 @@ const oracles = [
   "0x90DAc5C0073D9406aB25F2eDB0d91a8514e871Ad", // PLS
   "0xb7ad108628b8876f68349d4f150f33e97f5dae03", // MAGIC
   "0x8474E2C497A1bD0Cda16912C5BC91AB9F88056BB", // VSTA
+  "0x60B686b9EF4A3f077c8643Ac9939486f3A336672", // GRAIL
 ];
 const defaultBlock = {
   1337: 1,

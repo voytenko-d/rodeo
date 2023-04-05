@@ -13,7 +13,8 @@ import {StrategyHelper, StrategyHelperMulti} from "../StrategyHelper.sol";
 import {PartnerProxy} from "../PartnerProxy.sol";
 import {LiquidityMining} from "../LiquidityMining.sol";
 import {console} from "../test/utils/console.sol";
-import {StrategyBalancer} from "../StrategyBalancer.sol";
+import {StrategyCamelot} from "../StrategyCamelot.sol";
+import {OracleUniswapV2Usdc} from "../OracleUniswapV2Usdc.sol";
 import {OracleTWAP} from "../OracleTWAP.sol";
 
 interface Hevm {
@@ -58,6 +59,7 @@ contract DeploySingle {
         //address sushi = 0xd4d42F0b6DEF4CE0383636770eF773390d85c61A;
         //address gmx = 0xfc5A1A6EB076a2C7aD06eD22C90d7E710E35ad0a;
         //address umami = 0x1622bF67e6e5747b81866fE0b85178a93C7F86e3;
+        address grail = 0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8;
 
         Investor investor = Investor(0x8accf43Dd31DfCd4919cc7d65912A475BfA60369);
         address strategyHelper = 0x72f7101371201CeFd43Af026eEf1403652F115EE;
@@ -67,29 +69,13 @@ contract DeploySingle {
         //address shv3 = 0xaFF008DD677d2a9fd74D27B26Efc10A8e3f7BDaD;
         //address shb = 0xb1Ae664e23332eE54e0C029937e26058a08708cC;
         //address shc = 0x5C0B2558e38410ee11C942694914F1780F504f82;
-        //address shCam = 0x0D86B4749451e3cC139cB0fF31eCc7eD8ee40186;
+        address shCam = 0x0D86B4749451e3cC139cB0fF31eCc7eD8ee40186;
 
         //address admin = 0x5d52C98D4B2B9725D9a1ea3CcAf44871a34EFB96;
         address deployer = 0x20dE070F1887f82fcE2bdCf5D6d9874091e6FAe9;
         Multisig multisig = Multisig(payable(0xaB7d6293CE715F12879B9fa7CBaBbFCE3BAc0A5a));
 
         vm.startBroadcast();
-
-
-        /*
-        StrategyBalancer s = new StrategyBalancer(
-            strategyHelper,
-            0xBA12222222228d8Ba445958a75a0704d566BF2C8,
-            0xb08E16cFc07C684dAA2f93C70323BAdb2A6CBFd2,
-            0xC61ff48f94D801c1ceFaCE0289085197B5ec44F0,
-            weth
-        );
-        s.file("exec", investorActor);
-        s.file("exec", address(investor));
-        s.file("exec", address(multisig));
-        s.file("exec", address(deployer));
-        multisig.add(address(investor), 0, abi.encodeWithSignature("setStrategy(uint256,address)", investor.nextStrategy(), address(s)));
-        //*/
 
         /*
         StrategyJonesUsdc s = new StrategyJonesUsdc(

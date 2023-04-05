@@ -491,6 +491,27 @@ export const strategies = {
       ],
     },
     {
+      name: "ETH/USDC",
+      protocol: "Camelot",
+      icon: "/protocols/camelot.svg",
+      address: "0x91308b8d5e2352C7953D88A55D1012D68bF1EfD0",
+      index: 27,
+      apy: { type: "defillama", id: "4606a6d6-445d-4338-81bf-e96c38196bcb" },
+      description:
+        "Invests funds into Camelot's ETH/USDC LP pool and stakes it in the NFTPool for GRAIL rewards. Rewards are then auto-compounded into more LP tokens",
+      slug: "camelot-eth-usdc",
+      assets: [
+        {
+          ratio: 50,
+          address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+        },
+        {
+          ratio: 50,
+          address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+        },
+      ],
+    },
+    {
       name: "stETH/ETH",
       protocol: "KyberSwap",
       icon: "/protocols/kyberswap.png",

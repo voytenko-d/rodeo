@@ -10,8 +10,8 @@ import {Strategy} from "../Strategy.sol";
 import {Multisig} from "../support/Multisig.sol";
 import {StrategyHelper, StrategyHelperMulti} from "../StrategyHelper.sol";
 import {PositionManager, ERC721TokenReceiver} from "../PositionManager.sol";
-import {OracleUniswapV2} from "../OracleUniswapV2.sol";
-import {StrategyMycelium} from "../StrategyMycelium.sol";
+import {OracleUniswapV2Usdc} from "../OracleUniswapV2Usdc.sol";
+import {StrategyCamelot} from "../StrategyCamelot.sol";
 
 import {console} from "../test/utils/console.sol";
 
@@ -33,22 +33,22 @@ contract Debug is DSTest, ERC721TokenReceiver {
 
         /*
         // DEPLOY NEW STRATEGY
-        StrategyMycelium s = new StrategyMycelium(
+        StrategyCamelot s = new StrategyCamelot(
             address(strategyHelper),
-            0xd98d8e458F7aD22DD3C1d7A8B35C74005eb52b0b,
-            0xd98d8e458F7aD22DD3C1d7A8B35C74005eb52b0b,
-            0x9F4bC1Ef5319aF843E587a3Bfdb3B228009F035f,
-            usdc
+            0x6dB1EF0dF42e30acF139A70C1Ed0B7E6c51dBf6d,
+            0x84652bb2539513BAf36e225c930Fdd8eaa63CE27
         );
         //vm.stopPrank();
         //vm.startPrank(0xa5c1c5a67Ba16430547FEA9D608Ef81119bE1876);
         //address(0x97247DE3fe7c5aA718b2be4d454E42de11eAfc6d).call(abi.encodeWithSignature("whitelistAdd(address)", address(s)));
         //address(0x4E5Cf54FdE5E1237e80E87fcbA555d829e1307CE).call(abi.encodeWithSignature("setWhitelist(address)", 0x97247DE3fe7c5aA718b2be4d454E42de11eAfc6d));
-        s.file("slippage", 200);
+        s.file("slippage", 100);
         s.file("exec", investorActor);
         s.file("exec", address(investor));
         vm.stopPrank();
         vm.startPrank(address(multisig));
+        address o = address(new OracleUniswapV2Usdc(0x87425D8812f44726091831a9A109f4bDc3eA34b4, usdc));
+        StrategyHelper(strategyHelper).setOracle(0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8, o);
         uint256 sid = investor.nextStrategy();
         investor.setStrategy(sid, address(s));
         vm.stopPrank();
