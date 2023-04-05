@@ -97,6 +97,10 @@ const strategies = {
       apy: { type: "defillama", id: "4606a6d6-445d-4338-81bf-e96c38196bcb" },
     }, // Camelot ETH/USDC
     {
+      address: "0x32403558E7E386b79bB68bb942523e8c0A018B63",
+      apy: { type: "defillama", id: "a2904e71-f8c3-4e63-9126-d346e1ec732c" },
+    }, // Camelot GRAIL/USDC
+    {
       address: "0xcF03B33851F088d58E921d8aB5D60Dc1c3238758",
       apy: { type: "defillama", id: "5f1e249f-1ac4-48a3-8cba-f13be346cd99" },
     }, // KyberSwap wstETH/ETH

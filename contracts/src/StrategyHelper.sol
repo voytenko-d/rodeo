@@ -134,6 +134,35 @@ contract StrategyHelperUniswapV2 {
     }
 }
 
+contract StrategyHelperCamelot {
+    IRouterUniV2 public router;
+
+    constructor(address _router) {
+        router = IRouterUniV2(_router);
+    }
+
+    function swap(address ast, bytes calldata path, uint256 amt, uint256 min, address to) external {
+        IERC20(ast).approve(address(router), amt);
+        router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+            amt,
+            min, 
+            parsePath(path),
+            to,
+            address(0),
+            type(uint256).max
+        );
+    }
+
+    function parsePath(bytes memory path) internal pure returns (address[] memory) {
+        uint256 size = path.length / 20;
+        address[] memory p = new address[](size);
+        for (uint256 i = 0; i < size; i++) {
+            p[i] = address(uint160(bytes20(BytesLib.slice(path, i * 20, 20))));
+        }
+        return p;
+    }
+}
+
 contract StrategyHelperUniswapV3 {
     ISwapRouter router;
 

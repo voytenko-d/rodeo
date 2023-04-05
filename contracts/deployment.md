@@ -17,7 +17,7 @@
 - StrategyHelper https://arbiscan.io/address/0x72f7101371201CeFd43Af026eEf1403652F115EE
 - StrategyHelperMulti https://arbiscan.io/address/0xee2976041f3f2B8999C136db1355d894d10D27e8
 - StrategyHelperUniswapV2 (SushiSwap) * https://arbiscan.io/address/0x4cA2a8cC7B1110CF3961D1F4AAB195d3Ab61BF9b
-- StrategyHelperUniswapV2 (Camelot) https://arbiscan.io/address/0x0D86B4749451e3cC139cB0fF31eCc7eD8ee40186
+- StrategyHelperUniswapV2 (Camelot) https://arbiscan.io/address/0x7FC67A688F464538259E3F559dc63F00D64F3c0b
 - StrategyHelperUniswapV3 * https://arbiscan.io/address/0xaFF008DD677d2a9fd74D27B26Efc10A8e3f7BDaD
 - StrategyHelperBalancer https://arbiscan.io/address/0xb1Ae664e23332eE54e0C029937e26058a08708cC
 - StrategyHelperCurve https://arbiscan.io/0x5C0B2558e38410ee11C942694914F1780F504f82

@@ -106,6 +106,13 @@ export const assets = {
       decimals: 18,
       icon: "/assets/vsta.png",
     },
+    "0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8": {
+      name: "Grail",
+      symbol: "GRAIL",
+      address: "0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8",
+      decimals: 18,
+      icon: "/assets/grail.svg",
+    },
   },
   "arbitrum-rinkeby": {},
   localhost: {
@@ -180,6 +187,11 @@ export const tokens = {
     name: "VSTA",
     description:
       "Vesta Finance allows you to borrow collateralized stablecoin VST against supported crypto assets with low interest rate.",
+  },
+  "0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8": {
+    name: "GRAIL",
+    description:
+      "Camelot is an innovative and highly flexible DEX built to support the Arbitrum ecosystem. Community driven and capital efficient.",
   },
 };
 
@@ -498,7 +510,7 @@ export const strategies = {
       index: 27,
       apy: { type: "defillama", id: "4606a6d6-445d-4338-81bf-e96c38196bcb" },
       description:
-        "Invests funds into Camelot's ETH/USDC LP pool and stakes it in the NFTPool for GRAIL rewards. Rewards are then auto-compounded into more LP tokens",
+        "Invests funds into Camelot's LP pool and stakes it in the NFTPool for GRAIL rewards. Rewards are then auto-compounded into more LP tokens",
       slug: "camelot-eth-usdc",
       isNew: true,
       hidden: true,
@@ -506,6 +518,30 @@ export const strategies = {
         {
           ratio: 50,
           address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+        },
+        {
+          ratio: 50,
+          address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+        },
+      ],
+    },
+    {
+      name: "GRAIL/USDC",
+      protocol: "Camelot",
+      icon: "/protocols/camelot.svg",
+      address: "0x32403558E7E386b79bB68bb942523e8c0A018B63",
+      index: 28,
+      apy: { type: "defillama", id: "a2904e71-f8c3-4e63-9126-d346e1ec732c" },
+      description:
+        "Invests funds into Camelot's LP pool and stakes it in the NFTPool for GRAIL rewards. Rewards are then auto-compounded into more LP tokens",
+      slug: "camelot-grail-usdc",
+      slippage: 150,
+      isNew: true,
+      hidden: true,
+      assets: [
+        {
+          ratio: 50,
+          address: "0x3d9907F9a368ad0a51Be60f7Da3b97cf940982D8",
         },
         {
           ratio: 50,

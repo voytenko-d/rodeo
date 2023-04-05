@@ -9,7 +9,7 @@ import {Pool} from "../Pool.sol";
 import {Strategy} from "../Strategy.sol";
 import {Configurator} from "../support/Configurator.sol";
 import {Multisig} from "../support/Multisig.sol";
-import {StrategyHelper, StrategyHelperMulti} from "../StrategyHelper.sol";
+import {StrategyHelper, StrategyHelperCamelot} from "../StrategyHelper.sol";
 import {PartnerProxy} from "../PartnerProxy.sol";
 import {LiquidityMining} from "../LiquidityMining.sol";
 import {console} from "../test/utils/console.sol";
@@ -64,18 +64,33 @@ contract DeploySingle {
         Investor investor = Investor(0x8accf43Dd31DfCd4919cc7d65912A475BfA60369);
         address strategyHelper = 0x72f7101371201CeFd43Af026eEf1403652F115EE;
         address investorActor = 0x9D6A853Da8BF51386240Ad1ed19E13C48dF3a2A7;
-        address poolUsdc = 0x0032F5E1520a66C6E572e96A11fBF54aea26f9bE;
+        //address poolUsdc = 0x0032F5E1520a66C6E572e96A11fBF54aea26f9bE;
         //address shss = 0x4cA2a8cC7B1110CF3961D1F4AAB195d3Ab61BF9b;
         //address shv3 = 0xaFF008DD677d2a9fd74D27B26Efc10A8e3f7BDaD;
         //address shb = 0xb1Ae664e23332eE54e0C029937e26058a08708cC;
         //address shc = 0x5C0B2558e38410ee11C942694914F1780F504f82;
-        address shCam = 0x0D86B4749451e3cC139cB0fF31eCc7eD8ee40186;
+        address shCam = 0x7FC67A688F464538259E3F559dc63F00D64F3c0b;
 
         //address admin = 0x5d52C98D4B2B9725D9a1ea3CcAf44871a34EFB96;
         address deployer = 0x20dE070F1887f82fcE2bdCf5D6d9874091e6FAe9;
         Multisig multisig = Multisig(payable(0xaB7d6293CE715F12879B9fa7CBaBbFCE3BAc0A5a));
 
         vm.startBroadcast();
+
+        /*
+        StrategyCamelot s = new StrategyCamelot(
+          address(strategyHelper),
+          0x6dB1EF0dF42e30acF139A70C1Ed0B7E6c51dBf6d,
+          0x87425D8812f44726091831a9A109f4bDc3eA34b4
+        );
+        s.file("slippage", 100);
+        s.file("exec", investorActor);
+        s.file("exec", address(investor));
+        s.file("exec", address(multisig));
+        s.file("exec", address(deployer));
+        multisig.add(address(investor), 0, abi.encodeWithSignature("setStrategy(uint256,address)", investor.nextStrategy(), address(s)));
+        //*/
+        //multisig.add(address(strategyHelper), 0, abi.encodeWithSignature("setPath(address,address,address,bytes)", grail,weth, shCam, abi.encodePacked(grail, usdc, weth)));
 
         /*
         StrategyJonesUsdc s = new StrategyJonesUsdc(

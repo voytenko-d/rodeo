@@ -9,4 +9,12 @@ interface IRouterUniV2 {
         address to,
         uint256 deadline
     ) external;
+    function swapExactTokensForTokensSupportingFeeOnTransferTokens(
+        uint256 amountIn,
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        address referrer,
+        uint256 deadline
+    ) external;
 }
