@@ -115,7 +115,7 @@ contract StrategyJonesUsdc is Strategy {
             proxy.call(address(adapter), 0, abi.encodeWithSelector(adapter.depositStable.selector, amt, false));
         }
         if (bal < tar) {
-            if (signaledStablesEpoch > block.timestamp) {
+            if (signaledStablesEpoch != 0 && block.timestamp > signaledStablesEpoch) {
                 proxy.call(address(vaultRouter), 0, abi.encodeWithSelector(vaultRouter.redeemStable.selector, signaledStablesEpoch));
                 proxy.pull(address(asset));
                 signaledStablesEpoch = 0;
@@ -135,7 +135,7 @@ contract StrategyJonesUsdc is Strategy {
         proxy.setExec(address(this), false);
     }
 
-    function _move(address) internal override {
-        // can only earn once whitelisted, let it happen post move
+    function _move(address old) internal override {
+        signaledStablesEpoch = StrategyJonesUsdc(old).signaledStablesEpoch();
     }
 }

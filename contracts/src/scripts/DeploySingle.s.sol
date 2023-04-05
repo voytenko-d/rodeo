@@ -13,7 +13,7 @@ import {StrategyHelper, StrategyHelperCamelot} from "../StrategyHelper.sol";
 import {PartnerProxy} from "../PartnerProxy.sol";
 import {LiquidityMining} from "../LiquidityMining.sol";
 import {console} from "../test/utils/console.sol";
-import {StrategyCamelot} from "../StrategyCamelot.sol";
+import {StrategyJonesUsdc} from "../StrategyJonesUsdc.sol";
 import {OracleUniswapV2Usdc} from "../OracleUniswapV2Usdc.sol";
 import {OracleTWAP} from "../OracleTWAP.sol";
 
@@ -79,12 +79,12 @@ contract DeploySingle {
         vm.startBroadcast();
 
         /*
-        StrategyCamelot s = new StrategyCamelot(
+        StrategyJonesUsdc s = new StrategyJonesUsdc(
           address(strategyHelper),
-          0x6dB1EF0dF42e30acF139A70C1Ed0B7E6c51dBf6d,
-          0x87425D8812f44726091831a9A109f4bDc3eA34b4
+          0x5859731D7b7e413A958eA1cDb9020C611b016395,
+          0x42EfE3E686808ccA051A49BCDE34C5CbA2EBEfc1
         );
-        s.file("slippage", 100);
+        //s.file("slippage", 100);
         s.file("exec", investorActor);
         s.file("exec", address(investor));
         s.file("exec", address(multisig));
