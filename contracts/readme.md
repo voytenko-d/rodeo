@@ -147,7 +147,7 @@ See [`deployment.md`](./deployment.md) for contract addresses.
 
 ### Audits and Security
 
-**Audits:** Smart contracts have been audited by ?. These audit reports are made available under the `audits/` folder.
+**Audits:** Smart contracts have been audited by Kalos. These audit reports are made available under the `audits/` folder.
 
 **Scope:** There is an active bug bounty for issues which can lead to substantial loss of money, critical bugs such as a broken live-ness condition, or irreversible loss of funds. 
 
