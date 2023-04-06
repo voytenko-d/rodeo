@@ -944,6 +944,31 @@ export default function FarmPosition() {
               <div className="label-position">Daily APR</div>
               {formatNumber(newApy.div(365), 16, 4)}%
             </div>
+
+            {position && position.glpPrice ? (
+              <>
+                <div className="farm-row mb-6">
+                  <div className="label-position">GLP Price</div>${" "}
+                  {formatNumber(position.glpPrice, 18, 4)}
+                </div>
+                {position.liquidationPercent.lt(ONE) ? (
+                  <div className="farm-row mb-6">
+                    <div className="label-position">
+                      GLP Price for liquidation
+                    </div>
+                    ${" "}
+                    {formatNumber(
+                      position.glpPrice
+                        .mul(ONE.sub(position.liquidationPercent))
+                        .div(ONE),
+                      18,
+                      4
+                    )}
+                  </div>
+                ) : null}
+              </>
+            ) : null}
+
             {position ? (
               <div className="farm-row mb-6">
                 <div className="label-position">ROI</div>${" "}
@@ -972,7 +997,7 @@ export default function FarmPosition() {
                 %
               </div>
             ) : null}
-            {data?.positionOutset ? (
+            {position && data?.positionOutset ? (
               <div className="farm-row">
                 <div className="label-position">Created</div>
                 {formatDate(data.positionOutset)}

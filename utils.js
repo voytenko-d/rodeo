@@ -1347,6 +1347,26 @@ export function usePositions() {
           }
         }
 
+        if (strategy.name === "GLP") {
+          const glpManager = new ethers.Contract(
+            "0x3963ffc9dff443c2a94f21b129d429891e32ec18",
+            ["function getAumInUsdg(bool) view returns (uint256)"],
+            provider
+          );
+          const glp = new ethers.Contract(
+            "0x4277f8f2c384827b5273592ff7cebd9f2c1ac258",
+            ["function totalSupply() view returns (uint256)"],
+            provider
+          );
+          if (window.glpPrice) {
+            p.glpPrice = window.glpPrice;
+          } else {
+            const aumInUsdg = await glpManager.getAumInUsdg(false);
+            const totalSupply = await glp.totalSupply();
+            p.glpPrice = window.glpPrice = aumInUsdg.mul(ONE).div(totalSupply);
+          }
+        }
+
         return p;
       } catch (e) {
         console.error("ERROR FETCHING POSITION", id, e);
