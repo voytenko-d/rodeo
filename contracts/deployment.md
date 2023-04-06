@@ -23,14 +23,17 @@
 - StrategyHelperCurve https://arbiscan.io/0x5C0B2558e38410ee11C942694914F1780F504f82
 - OracleUniswapV3 GMX * https://arbiscan.io/address/0xD51E766137ca16bE4DA80678be05902C5AB53663
 - OracleUniswapV3 UMAMI * https://arbiscan.io/address/0xBfd768A096c0c0A29B7F3f5bCbae0674fE7A4F33
-- OracleUniswapV2 PLS https://arbiscan.io/address/0x90DAc5C0073D9406aB25F2eDB0d91a8514e871Ad
-- OracleUniswapV2 MAGIC https://arbiscan.io/address/0xb7AD108628B8876f68349d4F150f33e97f5DAE03
 - OracleBalancerLPStable wstETH/ETH https://arbiscan.io/address/0x198c2CC46a17E023Fa7c76909E4a6858FbC87B71
 - OracleChainlinkETH wstETH https://arbiscan.io/address/0xDde8d7C6BEeb9D59eFAEee2a2Be2BA500E451d5d
+- OracleUniswapV2Eth PLS https://arbiscan.io/address/0x8E5c55eae441269FBd3185649076082Df4383aee
+- OracleTWAP PLS https://arbiscan.io/address/0x079774604d6Af4479da5c00f2DDeb9E50eBdD944
+- OracleUniswapV2Eth MAGIC https://arbiscan.io/address/0x71c72caC59f44d325a357a56bdABB1C82213EDB3
+- OracleTWAP MAGIC https://arbiscan.io/address/0x9D4292A3b48c507a87fda78263E028C522457F15
 - OracleBalancer5050ETH VSTA https://arbiscan.io/address/0x51A82477154d8ae7c97784F141ab2B56088c435d
-- OracleTWAP VSTA https://arbiscan.io/address/0x8474E2C497A1bD0Cda16912C5BC91AB9F88056BB
+- OracleTWAP VSTA https://arbiscan.io/address/0x714c453756Ff2f511521A69158b6De859afE3899
 - OracleUniswapV2Usdc GRAIL https://arbiscan.io/address/0x63dd6107bbF26d03a0eF1f6EeC2aCe28C9FE37f0
-- OracleTWAP GRAIL https://arbiscan.io/address/0x60B686b9EF4A3f077c8643Ac9939486f3A336672
+- OracleTWAP GRAIL https://arbiscan.io/address/0x0436E619b8cA1ea53d52dD5551ADE688f7F8C499
+
 
 **Strategies**
 
