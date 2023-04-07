@@ -36,7 +36,6 @@ contract ERC20 {
 
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address => uint256)) public allowance;
-    mapping(address => uint256) public nonces;
 
     event Approval(address indexed src, address indexed guy, uint256 amt);
     event Transfer(address indexed src, address indexed dst, uint256 amt);
@@ -90,6 +89,7 @@ contract ERC20 {
 
 contract ERC20Permit is ERC20, Domain {
     bytes32 private constant PERMIT_SIGNATURE_HASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
+    mapping(address => uint256) public nonces;
 
     constructor(string memory _name, string memory _symbol, uint8 _decimals) ERC20(_name, _symbol, _decimals) {
     }

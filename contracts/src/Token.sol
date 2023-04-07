@@ -7,7 +7,6 @@ import {Util} from "./Util.sol";
 contract Token is ERC20Permit, Util {
     error NoMintAddress();
     error NoEmissionSent();
-    error NotTimeYet(uint256 waitToMint);
     error DeadlineExpired();
 
     uint256 public emissionRate; // percentage value, 1e18 = 100%
@@ -27,6 +26,7 @@ contract Token is ERC20Permit, Util {
     constructor(uint256 spl) ERC20Permit("Rodeo", "RODEO", 18) {
         exec[msg.sender] = true;
         _mint(msg.sender, spl);
+        lastMintTime = block.timestamp;
     }
 
     function mintEmission() external {
@@ -42,11 +42,8 @@ contract Token is ERC20Permit, Util {
             lastMintTime = block.timestamp;
             emit Mint(emissionsRecipient, amtToMint);
         } else {
-            if (lastMintTime + 1 weeks > block.timestamp) {
-                revert NotTimeYet(lastMintTime + 1 weeks - block.timestamp);
-            }
-            uint256 amtToMint = totalSupply * weeklyPercent / 1e18;
-            lastMintTime += 1 weeks;
+            uint256 amtToMint = totalSupply * weeklyPercent * (block.timestamp - lastMintTime) / 1e18 / 1 weeks;
+            lastMintTime += block.timestamp;
             _mint(emissionsRecipient, amtToMint);
             emit Mint(emissionsRecipient, amtToMint);
         }
@@ -56,7 +53,6 @@ contract Token is ERC20Permit, Util {
         lastAmtPerWeek = _emissionRate;
         decayPerWeek = _decayPerWeek;
         deadline = _deadline;
-        lastMintTime = block.timestamp;
         emit Configuration(msg.sender, _emissionRate, _decayPerWeek, _deadline);
     }
 
