@@ -15,10 +15,13 @@ const config = {
   investorHelper:
     process.env.INVESTOR_HELPER_ADDRESS ||
     "0x959922be3caee4b8cd9a407cc3ac1c251c2007b1",
+  telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
+  telegramChatId: process.env.TELEGRAM_CHAT_ID,
 };
 
 const parseUnits = ethers.utils.parseUnits;
 const ONE = parseUnits("1", 18);
+const ONE6 = parseUnits("1", 6);
 const provider = new ethers.providers.StaticJsonRpcProvider(
   config.rpc,
   config.chain
@@ -281,6 +284,25 @@ task("events", 15, async () => {
         name: l.name,
         data: values,
       });
+      if (l.name === "Kill") {
+        telegramMessageTry(
+          `Position Liquidation:\nIndex ${values.id}\nAmount ${l.args.amount
+            .div(ONE6)
+            .toString()}\nBorrow ${l.args.borrow
+            .div(ONE6)
+            .toString()}\nFee ${l.args.fee.div(ONE6).toString()}\nKeeper ${
+            l.args.keeper
+          }`
+        );
+      } else {
+        telegramMessageTry(
+          `Position Change:\nIndex ${
+            values.id
+          }\nAmount (+Add/-Shares) ${l.args.amount
+            .div(ONE6)
+            .toString()}\nBorrow Change ${l.args.borrowed.div(ONE6).toString()}`
+        );
+      }
     }
 
     currentBlock += batchSize;
@@ -323,6 +345,11 @@ task("strategies_profits", 2 * 60, async () => {
           earn: l.args.profit.toString(),
           tvl: l.args.tvl.toString(),
         });
+        telegramMessageTry(
+          `Strategy Earn: Address ``${s.address}`` Profit $${l.args.profit
+            .div(ONE)
+            .toString()} TVL ${l.args.tvl.div(ONE).toString()}`
+        );
       }
     }
     currentBlock += batchSize;
@@ -356,7 +383,6 @@ task("liquidations", 5, async () => {
     if (p && p.shares === 0) continue;
     indexes.push(i);
   }
-  //console.log("liquidations indexes", indexes);
 
   const indexesToKill = [];
   for (let i = 0; i < indexes.length; i += batchSize) {
@@ -371,7 +397,6 @@ task("liquidations", 5, async () => {
       indexesToKill.push(indexes[i + parseInt(j)]);
     }
   }
-  //console.log("liquidations indexesToKill", indexesToKill);
 
   const killBatchSize = 5;
   const signerAddress = await signer.getAddress();
@@ -421,6 +446,40 @@ function newId() {
   id <<= 12n;
   id |= newIdSeq % 4096n;
   return id.toString(10);
+}
+
+async function telegramCall(fn, args) {
+  if (!config.telegramBotToken) throw new Error("Bot token not configured");
+  return await (
+    await fetch(
+      "https://api.telegram.org/bot" + config.telegramBotToken + "/" + fn,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(args),
+      }
+    )
+  ).json();
+}
+
+function telegramMessage(text, chatId, replyTo) {
+  telegramCall("sendMessage", {
+    chat_id: chatId || config.telegramChatId,
+    text: text,
+    parse_mode: "Markdown",
+    disable_web_page_preview: true,
+    reply_to_message_id: replyTo,
+  });
+}
+
+function telegramMessageTry(text, chatId, replyTo) {
+  try {
+    telegramMessage(text, chatId, replyTo);
+  } catch (e) {
+    console.log(
+      `Error sending telegram message ${chatId} "${text}": ${String(e)}`
+    );
+  }
 }
 
 function task(name, every, fn) {
