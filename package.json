@@ -7,6 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint-check": "npm run lint-sol-check && npm run lint-js-check",
+    "lint-sol-check": "prettier --check \"contracts/**/*.sol\"",
+    "lint-js-check": "prettier --check \"./**/*.js\"",
+    "lint-fix": "npm run lint-sol-fix && npm run lint-js-fix",
+    "lint-sol-fix": "prettier --write \"contracts/**/*.sol\"",
+    "lint-js-fix": "prettier --write \"./**/*.js\"",
     "work": "psql rodeo -c 'truncate tasks_schedules;'; node support/worker.js",
     "prod": "env RODEO_RPC_URL=https://arb1.arbitrum.io/rpc RODEO_CHAIN=42161 INVESTOR_ADDRESS=0x8accf43Dd31DfCd4919cc7d65912A475BfA60369 INVESTOR_HELPER_ADDRESS=0x6f456005A7CfBF0228Ca98358f60E6AE1d347E18 STRATEGY_HELPER_ADDRESS=0xC7893Bd5d7bC46182070533c862ecF40dF59EF1B next dev",
     "db": "psql -c 'drop database rodeo;'; psql -c 'create database rodeo;'; psql rodeo <./support/db.sql"
